@@ -1,0 +1,33 @@
+enum EmailOutboxStatus {
+  PENDING               @map("pending")
+  QUEUED                @map("queued")
+  PROCESSING            @map("processing")
+  SENT                  @map("sent")
+  FAILED                @map("failed")
+  EXCEEDED_MAX_ATTEMPTS @map("exceeded_max_attempts")
+
+  @@map("email_outbox_status_enum")
+}
+
+model EmailOutbox {
+  id Int @id @default(autoincrement())
+
+  recipientEmail    String  @map("recipient_email") @db.VarChar(255)
+  subject           String  @db.VarChar(255)
+  htmlBody          String  @map("html_body") @db.Text
+  textBody          String? @map("text_body") @db.Text
+  provider          String  @default("resend") @db.VarChar(50)
+  providerMessageId String? @map("provider_message_id") @db.VarChar(255)
+
+  status       EmailOutboxStatus @default(PENDING)
+  queuedAt     DateTime?         @map("queued_at") @db.Timestamptz
+  processingAt DateTime?         @map("processing_at") @db.Timestamptz
+  sentAt       DateTime?         @map("sent_at") @db.Timestamptz
+  failedAt     DateTime?         @map("failed_at") @db.Timestamptz
+  lastError    String?           @map("last_error") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("email_outbox")
+}

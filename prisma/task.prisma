@@ -1,0 +1,33 @@
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+
+  @@map("tasks_status_enum")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+
+  @@map("tasks_priority_enum")
+}
+
+model Task {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  deadline    DateTime?    @db.Timestamptz
+  isPrivate   Boolean      @default(false) @map("is_private")
+
+  authorId Int  @map("author_id")
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("tasks")
+}
