@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { DatabaseService } from '@database';
 import type { UserEntity, CreateUserDto, UpdateUserDto } from '../users.types.js';
-import { DatabaseService } from '../../../infrastructure/database/index.js';
 
 @Injectable()
 export class UsersRepository {

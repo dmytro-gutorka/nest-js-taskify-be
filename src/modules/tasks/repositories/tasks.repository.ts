@@ -1,16 +1,14 @@
+import { DatabaseService } from '@database';
 import { Injectable } from '@nestjs/common';
 import { SortOrder } from '@common/enums';
+import { Prisma } from '@database/client';
 import type {
-    CreateTaskDto,
-    TaskCursorPaginatedResponse,
-    TaskCursorQuery,
     TaskFindAllQuery,
     TaskPagePaginatedResponse,
-    UpdateTaskDto,
-} from '@tasks';
-import { buildTaskSearchWhere } from '@tasks';
-import { DatabaseService } from '@database';
-import { Prisma } from '@database/client';
+    TaskCursorQuery,
+    TaskCursorPaginatedResponse, CreateTaskDto, UpdateTaskDto
+} from "../task.types.js";
+import {buildTaskSearchWhere} from "../utils/buildTaskSearchWhere.js";
 
 @Injectable()
 export class TasksRepository {

@@ -1,5 +1,5 @@
-import { Body, Param, Query } from '@nestjs/common';
 import type { ZodType } from 'zod';
+import { Body, Param, Query } from '@nestjs/common';
 import { ZodValidationPipe } from '@common/pipes';
 
 export function ZodBody<T>(schema: ZodType<T>) {

@@ -1,16 +1,13 @@
-import type {
-    TaskCursorQuery,
-    TaskFindAllQuery,
-    TaskPagePaginatedResponse,
-    TaskCursorPaginatedResponse,
-    TaskResponse,
-    CreateTaskDto,
-    UpdateTaskDto,
-} from '@tasks';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
 import type { ActiveUser } from '@common/types';
 import type { MessageResponse } from '@common/types';
+import type {
+    TaskFindAllQuery,
+    TaskPagePaginatedResponse,
+    TaskCursorQuery,
+    TaskCursorPaginatedResponse, TaskResponse, CreateTaskDto, UpdateTaskDto
+} from "../task.types.js";
 
 @Injectable()
 export class TasksService {
