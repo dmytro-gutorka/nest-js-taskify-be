@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
-import { SortOrder } from '../../../common/enums/sort-order.enum.js';
+import { SortOrder } from '@common/enums';
 import type {
     CreateTaskDto,
     TaskCursorPaginatedResponse,
@@ -8,13 +7,14 @@ import type {
     TaskFindAllQuery,
     TaskPagePaginatedResponse,
     UpdateTaskDto,
-} from '../task.types.js';
-import { Prisma } from '../../../generated/prisma/client.js';
-import { buildTaskSearchWhere } from '../utils/buildTaskSearchWhere.js';
+} from '@tasks';
+import { buildTaskSearchWhere } from '@tasks';
+import { DatabaseService } from '@database';
+import { Prisma } from '@database/client';
 
 @Injectable()
 export class TasksRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly database: DatabaseService) {}
 
     async findAll(authorId: number, query: TaskFindAllQuery): Promise<TaskPagePaginatedResponse> {
         const {
@@ -37,14 +37,14 @@ export class TasksRepository {
 
         const orderBy = { [sortBy]: order };
         const skip = (page - 1) * limit;
-        const [items, total] = await this.prisma.$transaction([
-            this.prisma.task.findMany({
+        const [items, total] = await this.database.$transaction([
+            this.database.task.findMany({
                 where,
                 orderBy,
                 skip,
                 take: limit,
             }),
-            this.prisma.task.count({ where }),
+            this.database.task.count({ where }),
         ]);
 
         return {
@@ -59,7 +59,7 @@ export class TasksRepository {
     async findFeed(authorId: number, query: TaskCursorQuery): Promise<TaskCursorPaginatedResponse> {
         const { cursor, limit = 10 } = query;
 
-        const items = await this.prisma.task.findMany({
+        const items = await this.database.task.findMany({
             where: {
                 authorId,
                 isPrivate: false,
@@ -80,7 +80,7 @@ export class TasksRepository {
     }
 
     async findOne(id: number, authorId?: number) {
-        return this.prisma.task.findFirst({
+        return this.database.task.findFirst({
             where: {
                 id,
                 ...(authorId ? { authorId } : {}),
@@ -89,7 +89,7 @@ export class TasksRepository {
     }
 
     async create(createTaskDto: CreateTaskDto, authorId: number) {
-        return this.prisma.task.create({
+        return this.database.task.create({
             data: {
                 ...createTaskDto,
                 authorId,
@@ -104,7 +104,7 @@ export class TasksRepository {
             return null;
         }
 
-        return this.prisma.task.update({
+        return this.database.task.update({
             where: { id: task.id },
             data: updateTaskDto,
         });
@@ -117,7 +117,7 @@ export class TasksRepository {
             return false;
         }
 
-        await this.prisma.task.delete({
+        await this.database.task.delete({
             where: {
                 id: task.id,
             },

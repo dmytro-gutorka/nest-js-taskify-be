@@ -13,13 +13,38 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "baseUrl": ".",
+    "paths": {
+      "@database": [
+        "src/infrastructure/database/index.js"
+      ],
+      "@database/client": [
+        "src/infrastructure/database/prisma/generated/client.js"
+      ],
+      "@database/enums": [
+        "src/infrastructure/database/prisma/generated/enums.js"
+      ],
+
+      "@tasks": [
+        "src/modules/tasks/index.js"
+      ],
+      "@users": [
+        "src/modules/users/index.js"
+      ],
+
+      "@common": ["src/common/index.js"],
+      "@common/decorators": ["src/common/decorators/index.js"],
+      "@common/enums": ["src/common/enums/index.js"],
+      "@common/pipes": ["src/common/pipes/index.js"],
+      "@common/schemas": ["src/common/schemas/index.js"],
+      "@common/types": ["src/common/types/index.js"]
+    }
   }
 }

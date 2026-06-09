@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TaskPriority } from '../../../generated/prisma/enums.js';
+import { TaskPriority } from '@database/enums';
 
 const priorityValues = Object.values(TaskPriority);
 

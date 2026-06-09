@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TaskStatus } from '../../../generated/prisma/enums.js';
+import { TaskStatus } from '@database/enums';
 
 const statusValues = Object.values(TaskStatus);
 

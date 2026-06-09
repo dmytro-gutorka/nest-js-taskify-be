@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuthProvider } from '../../generated/prisma/enums.js';
+import { AuthProvider } from '@database/enums';
 
 export const ActiveUserSchema = z.object({
     id: z.number(),

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TaskStatus, TaskPriority } from '../../../generated/prisma/enums.js';
+import { TaskStatus, TaskPriority } from '@database/enums';
 
 export const CreateTaskSchema = z.strictObject({
     title: z.string('Title is required field').min(3, 'Min title length is 3'),

@@ -1,4 +1,4 @@
-import { Prisma } from '../../../generated/prisma/client.js';
+import { Prisma } from '@database/client';
 
 const DEFAULT_TASK_SEARCH_FIELDS = ['title', 'description'] as const;
 

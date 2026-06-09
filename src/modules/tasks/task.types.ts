@@ -1,9 +1,9 @@
 import type { infer as ZodInfer } from 'zod';
-import type { CursorPaginationSchema } from '../../common/schemas/cursor-pagination.schema.js';
+import type { TaskStatus, TaskPriority } from '@database/enums';
+import type { CursorPaginationSchema } from '@common/schemas';
 import type { CreateTaskSchema } from './schemas/create-task.schema.js';
 import type { UpdateTaskSchema } from './schemas/update-task.schema.js';
 import type { TaskQuerySchema } from './schemas/task-query.schema.js';
-import type { TaskStatus, TaskPriority } from '../../generated/prisma/enums.js';
 
 // ! DTOs
 export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;

@@ -6,11 +6,11 @@ import type {
     TaskResponse,
     CreateTaskDto,
     UpdateTaskDto,
-} from '../task.types.js';
+} from '@tasks';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
-import type { ActiveUser } from '../../../common/types/auth.types.js';
-import type { MessageResponse } from '../../../common/types/responses.types.js';
+import type { ActiveUser } from '@common/types';
+import type { MessageResponse } from '@common/types';
 
 @Injectable()
 export class TasksService {
@@ -35,7 +35,6 @@ export class TasksService {
     }
 
     async create(createTaskDto: CreateTaskDto, user: ActiveUser): Promise<TaskResponse> {
-        console.log(user);
         return this.tasksRepository.create(createTaskDto, user.id);
     }
 

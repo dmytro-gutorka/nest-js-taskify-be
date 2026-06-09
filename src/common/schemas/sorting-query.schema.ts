@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SortOrder } from '../enums/sort-order.enum.js';
+import { SortOrder } from '@common/enums';
 
 const orderVariants = Object.values(SortOrder).join(', ');
 
