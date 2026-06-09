@@ -1,24 +1,38 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { TasksRepository } from '../repositories/tasks.repository.js';
-import type { ActiveUser } from '@common/types';
-import type { MessageResponse } from '@common/types';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {TasksRepository} from '../repositories/tasks.repository.js';
+import type {ActiveUser} from '@common/types';
+import type {MessageResponse} from '@common/types';
 import type {
     TaskFindAllQuery,
     TaskPagePaginatedResponse,
     TaskCursorQuery,
-    TaskCursorPaginatedResponse, TaskResponse, CreateTaskDto, UpdateTaskDto
+    TaskCursorPaginatedResponse, TaskResponse, CreateTaskDto, UpdateTaskDto, TaskEntity
 } from "../task.types.js";
+import {TaskStatusApiMap, TaskPriorityApiMap} from "../tasks.constants.js";
 
 @Injectable()
 export class TasksService {
-    constructor(private readonly tasksRepository: TasksRepository) {}
-
-    async findAll(user: ActiveUser, query: TaskFindAllQuery): Promise<TaskPagePaginatedResponse> {
-        return this.tasksRepository.findAll(user.id, query);
+    constructor(private readonly tasksRepository: TasksRepository) {
     }
 
-    async findFeed(user: ActiveUser, query: TaskCursorQuery): Promise<TaskCursorPaginatedResponse> {
-        return this.tasksRepository.findFeed(user.id, query);
+    async findAll(user: ActiveUser, query: TaskFindAllQuery): Promise<TaskPagePaginatedResponse<TaskResponse>> {
+        const paginatedTasksResponse = await this.tasksRepository.findAll(user.id, query);
+        const mappedTask = paginatedTasksResponse.items.map((task: TaskEntity) => this.toTaskResponse(task));
+
+        return {
+            ...paginatedTasksResponse,
+            items: mappedTask
+        }
+    }
+
+    async findFeed(user: ActiveUser, query: TaskCursorQuery): Promise<TaskCursorPaginatedResponse<TaskResponse>> {
+        const cursorPaginatedTasksResponse = await this.tasksRepository.findFeed(user.id, query);
+        const mappedTask = cursorPaginatedTasksResponse.items.map((task: TaskEntity) => this.toTaskResponse(task));
+
+        return {
+            ...cursorPaginatedTasksResponse,
+            items: mappedTask
+        }
     }
 
     async findOne(id: number, user: ActiveUser): Promise<TaskResponse> {
@@ -28,11 +42,13 @@ export class TasksService {
             throw new NotFoundException('Task not found.');
         }
 
-        return task;
+        return this.toTaskResponse(task);
     }
 
     async create(createTaskDto: CreateTaskDto, user: ActiveUser): Promise<TaskResponse> {
-        return this.tasksRepository.create(createTaskDto, user.id);
+        const createdTask = await this.tasksRepository.create(createTaskDto, user.id);
+
+        return this.toTaskResponse(createdTask)
     }
 
     async update(
@@ -46,7 +62,7 @@ export class TasksService {
             throw new NotFoundException('Task not found.');
         }
 
-        return updatedTask;
+        return this.toTaskResponse(updatedTask);
     }
 
     async delete(id: number, user: ActiveUser): Promise<MessageResponse> {
@@ -59,5 +75,13 @@ export class TasksService {
         return {
             message: 'Task deleted successfully',
         };
+    }
+
+    toTaskResponse(task: TaskEntity): TaskResponse {
+        return {
+            ...task,
+            status: TaskStatusApiMap[task.status],
+            priority: TaskPriorityApiMap[task.priority]
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
-import { CursorPaginationSchema, ParamsIdSchema, type ParamId } from '@common/schemas';
+import {CursorPaginationSchema, ParamsIdSchema, type ParamId, PagePaginationSchema} from '@common/schemas';
 import { AuthProvider } from '@database/client';
 import { ZodQuery, ZodParam, ZodBody } from '@common/decorators';
 import type { ActiveUser } from '@common/types';
@@ -28,7 +28,7 @@ export class TasksController {
     findAll(
         // @ts-ignore
         // I do not know how to fix this for now, TODO: 1 figure out later
-        @ZodQuery(CursorPaginationSchema)
+        @ZodQuery(TaskQuerySchema)
         query: TaskFindAllQuery,
     ) {
         return this.tasksService.findAll(this.temporaryUser, query);
@@ -36,7 +36,7 @@ export class TasksController {
 
     @Get('feed')
     findFeed(
-        @ZodQuery(TaskQuerySchema)
+        @ZodQuery(CursorPaginationSchema)
         query: TaskCursorQuery,
     ) {
         return this.tasksService.findFeed(this.temporaryUser, query);
