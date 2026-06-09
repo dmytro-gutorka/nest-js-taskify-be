@@ -1,12 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service.js';
+import {Controller, Get} from '@nestjs/common';
+import {PrismaService} from "./infrastructure/prisma/prisma.service.js";
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor(
+        private readonly prisma: PrismaService,) {
+    }
 
     @Get()
-    getHello(): string {
-        return this.appService.getHello();
+    async getHello() {
+        const usersCount = await this.prisma.user.count()
+
+        return {
+            message: 'Hello World!',
+            usersCount,
+        }
     }
 }

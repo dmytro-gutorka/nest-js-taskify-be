@@ -9,8 +9,8 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "NODE_OPTIONS=--import=module-alias/register nest start",
+    "start:dev": "NODE_OPTIONS=--import=module-alias/register nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -27,9 +27,11 @@
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "module-alias": "^2.3.4",
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -74,5 +76,14 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "_moduleAliases": {
+    "@root": ".",
+    "@generated": "src/generated",
+    "@infrastructure": "src/infrastructure",
+    "@lib": "src/lib"
+  },
+  "_moduleDirectories": [
+    "node_modules_custom"
+  ]
 }
