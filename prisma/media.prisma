@@ -1,0 +1,19 @@
+model Media {
+  id Int @id @default(autoincrement())
+
+  mediaType       String @map("media_type") @db.VarChar(30)
+  publicUrl       String @map("public_url") @db.Text
+  storageProvider String @map("storage_provider") @db.VarChar(50)
+  storagePublicId String @map("storage_public_id") @db.VarChar(255)
+  mimeType        String @map("mime_type") @db.VarChar(100)
+  originalName    String @map("original_name") @db.VarChar(255)
+  sizeBytes       Int    @map("size_bytes")
+
+  avatar UserAvatar?
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
+  @@map("media")
+}

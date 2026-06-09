@@ -1,0 +1,50 @@
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique @db.VarChar(50)
+  name        String?   @db.VarChar(50)
+  surname     String?   @db.VarChar(50)
+  birthday    DateTime? @db.Date
+  lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz
+
+  auth        Auth[]
+  tasks       Task[]
+  preferences UserPreferences?
+  avatar      UserAvatar?
+  media       Media[]
+
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+  PasswordResetToken PasswordResetToken[]
+
+  @@map("users")
+}
+
+model UserPreferences {
+  id Int @id @default(autoincrement())
+
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  language String @default("en") @db.VarChar
+  theme    String @default("system") @db.VarChar
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_preferences")
+}
+
+model UserAvatar {
+  id Int @id @default(autoincrement())
+
+  userId Int  @unique(map: "UQ_user_avatars_user_id") @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mediaId Int   @unique(map: "UQ_user_avatars_media_id") @map("media_id")
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_avatars")
+}
