@@ -1,4 +1,4 @@
-import {TaskStatus, TaskPriority} from "../../infrastructure/database/prisma/generated/enums.js";
+import { TaskStatus, TaskPriority } from '../../infrastructure/database/prisma/generated/enums.js';
 
 export const TaskStatusApiMap = {
     [TaskStatus.TODO]: 'todo',

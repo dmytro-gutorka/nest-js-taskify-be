@@ -3,9 +3,9 @@ import type { CursorPaginationSchema } from '@common/schemas';
 import type { CreateTaskSchema } from './schemas/create-task.schema.js';
 import type { UpdateTaskSchema } from './schemas/update-task.schema.js';
 import type { TaskQuerySchema } from './schemas/task-query.schema.js';
-import type {ValueOf} from "../../common/index.js";
-import {type TaskStatusApiMap, TaskPriorityApiMap} from "./tasks.constants.js";
-import type {Task} from "../../infrastructure/database/prisma/generated/client.js";
+import type { ValueOf } from '../../common/index.js';
+import { type TaskStatusApiMap, TaskPriorityApiMap } from './tasks.constants.js';
+import type { Task } from '../../infrastructure/database/prisma/generated/client.js';
 
 // ! DTOs
 export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;
@@ -16,7 +16,7 @@ export type TaskFindAllQuery = ZodInfer<typeof TaskQuerySchema>;
 export type TaskCursorQuery = ZodInfer<typeof CursorPaginationSchema>;
 
 // ! Entity
-export type TaskEntity = Task
+export type TaskEntity = Task;
 
 // ! Responses
 export interface TaskResponse {
@@ -44,4 +44,3 @@ export interface TaskCursorPaginatedResponse<T> {
     items: T[];
     nextCursor: number | null;
 }
-

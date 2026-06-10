@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
-import {CursorPaginationSchema, ParamsIdSchema, type ParamId, PagePaginationSchema} from '@common/schemas';
+import { CursorPaginationSchema, ParamsIdSchema, type ParamId } from '@common/schemas';
 import { AuthProvider } from '@database/client';
 import { ZodQuery, ZodParam, ZodBody } from '@common/decorators';
 import type { ActiveUser } from '@common/types';

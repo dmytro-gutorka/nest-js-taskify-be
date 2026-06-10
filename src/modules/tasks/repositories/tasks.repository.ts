@@ -1,21 +1,26 @@
-import {DatabaseService} from '@database';
-import {Injectable} from '@nestjs/common';
-import {SortOrder} from '@common/enums';
-import {Prisma} from '@database/client';
+import { DatabaseService } from '@database';
+import { Injectable } from '@nestjs/common';
+import { SortOrder } from '@common/enums';
+import { Prisma } from '@database/client';
 import type {
     TaskFindAllQuery,
     TaskPagePaginatedResponse,
     TaskCursorQuery,
-    TaskCursorPaginatedResponse, CreateTaskDto, UpdateTaskDto, TaskEntity
-} from "../task.types.js";
-import {buildTaskSearchWhere} from "../utils/buildTaskSearchWhere.js";
+    TaskCursorPaginatedResponse,
+    CreateTaskDto,
+    UpdateTaskDto,
+    TaskEntity,
+} from '../task.types.js';
+import { buildTaskSearchWhere } from '../utils/buildTaskSearchWhere.js';
 
 @Injectable()
 export class TasksRepository {
-    constructor(private readonly database: DatabaseService) {
-    }
+    constructor(private readonly database: DatabaseService) {}
 
-    async findAll(authorId: number, query: TaskFindAllQuery): Promise<TaskPagePaginatedResponse<TaskEntity>> {
+    async findAll(
+        authorId: number,
+        query: TaskFindAllQuery,
+    ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
         const {
             search,
             searchBy,
@@ -35,7 +40,7 @@ export class TasksRepository {
         };
 
         console.log(where);
-        const orderBy = {[sortBy]: order};
+        const orderBy = { [sortBy]: order };
         const skip = (page - 1) * limit;
         const [items, total] = await this.database.$transaction([
             this.database.task.findMany({
@@ -44,7 +49,7 @@ export class TasksRepository {
                 skip,
                 take: limit,
             }),
-            this.database.task.count({where}),
+            this.database.task.count({ where }),
         ]);
 
         return {
@@ -56,17 +61,20 @@ export class TasksRepository {
         };
     }
 
-    async findFeed(authorId: number, query: TaskCursorQuery): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
-        const {cursor, limit = 10} = query;
+    async findFeed(
+        authorId: number,
+        query: TaskCursorQuery,
+    ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
+        const { cursor, limit = 10 } = query;
 
         const items = await this.database.task.findMany({
             where: {
                 authorId,
                 isPrivate: false,
             },
-            orderBy: {id: SortOrder.DESC},
+            orderBy: { id: SortOrder.DESC },
             take: limit + 1,
-            ...(cursor ? {cursor: {id: cursor}, skip: 1} : {}),
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         });
 
         const hasNextPage = items.length > limit;
@@ -83,7 +91,7 @@ export class TasksRepository {
         return this.database.task.findFirst({
             where: {
                 id,
-                ...(authorId ? {authorId} : {}),
+                ...(authorId ? { authorId } : {}),
             },
         });
     }
@@ -105,7 +113,7 @@ export class TasksRepository {
         }
 
         return this.database.task.update({
-            where: {id: task.id},
+            where: { id: task.id },
             data: updateTaskDto,
         });
     }
@@ -125,6 +133,4 @@ export class TasksRepository {
 
         return true;
     }
-
-
 }
