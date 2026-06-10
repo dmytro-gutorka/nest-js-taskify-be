@@ -1,8 +1,7 @@
-import 'module-alias/register'
-import {NestFactory} from '@nestjs/core';
-import type {NestExpressApplication} from '@nestjs/platform-express';
-import {AppModule} from './app.module.js';
-import {ConfigService} from '@nestjs/config';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module.js';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -12,4 +11,4 @@ async function bootstrap() {
     await app.listen(port);
 }
 
-bootstrap();
+await bootstrap();

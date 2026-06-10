@@ -8,17 +8,25 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+
     "start": "NODE_OPTIONS=--import=module-alias/register nest start",
     "start:dev": "NODE_OPTIONS=--import=module-alias/register nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:debug": "NODE_OPTIONS=--import=module-alias/register nest start --debug --watch",
+    "start:prod": "node --import module-alias/register dist/main.js",
+
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config test/jest-e2e.json"
+    "test:e2e": "jest --config test/jest-e2e.json",
+
+    "prisma:validate": "prisma validate",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -78,12 +86,18 @@
     "testEnvironment": "node"
   },
   "_moduleAliases": {
-    "@root": ".",
-    "@generated": "src/generated",
-    "@infrastructure": "src/infrastructure",
-    "@lib": "src/lib"
-  },
-  "_moduleDirectories": [
-    "node_modules_custom"
-  ]
+    "@database": "dist/src/infrastructure/database/index.js",
+    "@database/client": "dist/src/infrastructure/database/prisma/generated/client.js",
+    "@database/enums": "dist/src/infrastructure/database/prisma/generated/enums.js",
+
+    "@tasks": "dist/src/modules/tasks/index.js",
+    "@users": "dist/src/modules/users/index.js",
+
+    "@common": "dist/src/common/index.js",
+    "@common/decorators": "dist/src/common/decorators/index.js",
+    "@common/enums": "dist/src/common/enums/index.js",
+    "@common/pipes": "dist/src/common/pipes/index.js",
+    "@common/schemas": "dist/src/common/schemas/index.js",
+    "@common/types": "dist/src/common/types/index.js"
+  }
 }
