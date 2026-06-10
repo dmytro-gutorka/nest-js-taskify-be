@@ -40,6 +40,7 @@
       ],
 
       "@common": ["src/common/index.js"],
+      "@common/constants": ["src/common/constants/index.js"],
       "@common/decorators": ["src/common/decorators/index.js"],
       "@common/enums": ["src/common/enums/index.js"],
       "@common/pipes": ["src/common/pipes/index.js"],
