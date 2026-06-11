@@ -4,12 +4,14 @@ import { DatabaseModule } from '@database';
 import { UsersModule } from '@users';
 import { TasksModule } from '@tasks';
 import {AuthModule} from "./modules/auth/auth.module.js";
+import {ExceptionFilterModule} from "./common/exception-filter/index.js";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             envFilePath: '.env',
         }),
+        ExceptionFilterModule,
         TasksModule,
         UsersModule,
         DatabaseModule,
