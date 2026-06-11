@@ -1,4 +1,4 @@
-import { type ActiveUser, ZodBody } from '@common';
+import {type ActiveUser, ZodBody} from '@common';
 import {
     Controller,
     Get,
@@ -8,49 +8,47 @@ import {
     UseInterceptors,
     Post,
     BadRequestException,
-    UploadedFile,
+    UploadedFile, UseGuards,
 } from '@nestjs/common';
-import { AuthProvider } from '@database/enums';
-import { UsersService } from './services/users.service.js';
-import { UpdateUserSchema } from './schemas/update-user.schema.js';
-import type { UpdateUserDto } from './users.types.js';
-import { AvatarUploadInterceptor } from '../media/interceptors/avatar-upload.interceptor.js';
+import {UsersService} from './services/users.service.js';
+import {UpdateUserSchema} from './schemas/update-user.schema.js';
+import type {UpdateUserDto} from './users.types.js';
+import {AvatarUploadInterceptor} from '../media/interceptors/avatar-upload.interceptor.js';
+import {CurrentUser} from '../auth/decorators/current-user.decorator.js';
+import {AccessTokenGuard} from "../auth/guards/access-token.guard.js";
 
 @Controller('users')
+@UseGuards(AccessTokenGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
-
-    private readonly temporaryUser: ActiveUser = {
-        id: 1,
-        email: 'test@example.com',
-        provider: AuthProvider.LOCAL,
-    };
+    constructor(private readonly usersService: UsersService) {
+    }
 
     @Get('me')
-    findMe() {
-        return this.usersService.findOne(this.temporaryUser.id);
+    findMe(@CurrentUser() user: ActiveUser) {
+        return this.usersService.findOne(user.id);
     }
 
     @Patch('me')
     updateMe(
+        @CurrentUser() user: ActiveUser,
         @ZodBody(UpdateUserSchema)
         body: UpdateUserDto,
     ) {
-        return this.usersService.update(this.temporaryUser.id, body);
+        return this.usersService.update(user.id, body);
     }
 
     @Delete('me')
     @HttpCode(200)
-    deleteMe() {
-        return this.usersService.delete(this.temporaryUser.id);
+    deleteMe(@CurrentUser() user: ActiveUser) {
+        return this.usersService.delete(user.id);
     }
 
     @Post('me/avatar')
     @UseInterceptors(AvatarUploadInterceptor)
-    uploadMyAvatar(@UploadedFile() file?: Express.Multer.File) {
+    uploadMyAvatar(@CurrentUser() user: ActiveUser, @UploadedFile() file?: Express.Multer.File) {
         if (!file) throw new BadRequestException('Avatar image is required');
 
-        return this.usersService.uploadAvatar(this.temporaryUser.id, {
+        return this.usersService.uploadAvatar(user.id, {
             buffer: file.buffer,
             originalName: file.originalname,
             mimeType: file.mimetype,

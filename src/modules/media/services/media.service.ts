@@ -1,9 +1,8 @@
 import {
-    MEDIA_STORAGE_SERVICE,
-    type MediaStorageService,
+    MediaStorageService,
 } from '../../../infrastructure/media-storage/media-storage.types.js';
-import { Injectable, Inject } from '@nestjs/common';
-import { MediaRepository } from '../repositories/media.repository.js';
+import {Injectable} from '@nestjs/common';
+import {MediaRepository} from '../repositories/media.repository.js';
 import type {
     UploadMediaFileInput,
     MediaEntity,
@@ -14,9 +13,9 @@ import type {
 export class MediaService {
     constructor(
         private readonly mediaRepository: MediaRepository,
-        @Inject(MEDIA_STORAGE_SERVICE)
         private readonly mediaStorageService: MediaStorageService,
-    ) {}
+    ) {
+    }
 
     async upload(input: UploadMediaFileInput): Promise<MediaEntity> {
         const uploadedMedia = await this.mediaStorageService.upload({

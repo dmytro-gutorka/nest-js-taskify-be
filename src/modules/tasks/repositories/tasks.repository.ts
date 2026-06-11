@@ -39,7 +39,6 @@ export class TasksRepository {
             ...buildTaskSearchWhere(search, searchBy),
         };
 
-        console.log(where);
         const orderBy = { [sortBy]: order };
         const skip = (page - 1) * limit;
         const [items, total] = await this.database.$transaction([

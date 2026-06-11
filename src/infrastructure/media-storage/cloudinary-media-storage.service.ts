@@ -1,21 +1,22 @@
 import {
     type UploadMediaInput,
-    type MediaStorageService,
     type MediaStorageFolderPresetConfig,
-    MediaStorageFolderPreset,
     type UploadMediaResult,
+    MediaStorageFolderPreset,
+    MediaStorageService,
 } from './media-storage.types.js';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { type UploadApiResponse, v2 as cloudinary } from 'cloudinary';
-import { MediaStorageProvider } from '../database/prisma/generated/enums.js';
-import { MediaStorageResources } from './media-storage.constants.js';
+import {Injectable} from '@nestjs/common';
+import {ConfigService} from '@nestjs/config';
+import {type UploadApiResponse, v2 as cloudinary} from 'cloudinary';
+import {MediaStorageProvider} from '../database/prisma/generated/enums.js';
+import {MediaStorageResources} from './media-storage.constants.js';
 
 @Injectable()
-export class CloudinaryMediaStorageService implements MediaStorageService {
+export class CloudinaryMediaStorageService extends MediaStorageService {
     private readonly defaultFolder: string;
 
     constructor(private readonly configService: ConfigService) {
+        super();
         cloudinary.config({
             cloud_name: this.configService.getOrThrow<string>('CLOUDINARY_CLOUD_NAME'),
             api_key: this.configService.getOrThrow<string>('CLOUDINARY_API_KEY'),
@@ -24,6 +25,22 @@ export class CloudinaryMediaStorageService implements MediaStorageService {
         });
 
         this.defaultFolder = this.configService.get<string>('CLOUDINARY_FOLDER') ?? 'taskify';
+    }
+
+    async upload(input: UploadMediaInput): Promise<UploadMediaResult> {
+        const uploadResult = await this.uploadBuffer(input);
+
+        return {
+            publicUrl: uploadResult.secure_url,
+            storagePublicId: uploadResult.public_id,
+            storageProvider: MediaStorageProvider.CLOUDINARY,
+        };
+    }
+
+    async delete(storagePublicId: string): Promise<void> {
+        await cloudinary.uploader.destroy(storagePublicId, {
+            resource_type: MediaStorageResources.IMAGE,
+        });
     }
 
     private resolveFolder(input: UploadMediaInput): string {
@@ -68,22 +85,6 @@ export class CloudinaryMediaStorageService implements MediaStorageService {
             });
 
             uploadStream.end(input.buffer);
-        });
-    }
-
-    async upload(input: UploadMediaInput): Promise<UploadMediaResult> {
-        const uploadResult = await this.uploadBuffer(input);
-
-        return {
-            publicUrl: uploadResult.secure_url,
-            storagePublicId: uploadResult.public_id,
-            storageProvider: MediaStorageProvider.CLOUDINARY,
-        };
-    }
-
-    async delete(storagePublicId: string): Promise<void> {
-        await cloudinary.uploader.destroy(storagePublicId, {
-            resource_type: MediaStorageResources.IMAGE,
         });
     }
 }

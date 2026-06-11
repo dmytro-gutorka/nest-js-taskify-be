@@ -28,10 +28,9 @@ export interface UploadMediaResult {
     storageProvider: MediaStorageProvider;
 }
 
-export interface MediaStorageService {
-    upload(input: UploadMediaInput): Promise<UploadMediaResult>;
 
-    delete(storagePublicId: string): Promise<void>;
+export abstract class MediaStorageService {
+    abstract upload(input: UploadMediaInput): Promise<UploadMediaResult>;
+
+    abstract delete(storagePublicId: string): Promise<void>;
 }
-
-export const MEDIA_STORAGE_SERVICE = Symbol('MEDIA_STORAGE_SERVICE');

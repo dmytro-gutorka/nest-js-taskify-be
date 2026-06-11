@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
-import type { ActiveUser } from '@common/types';
 import type { MessageResponse } from '@common/types';
 import type {
     TaskFindAllQuery,
@@ -19,10 +18,10 @@ export class TasksService {
     constructor(private readonly tasksRepository: TasksRepository) {}
 
     async findAll(
-        user: ActiveUser,
+        userId: number,
         query: TaskFindAllQuery,
     ): Promise<TaskPagePaginatedResponse<TaskResponse>> {
-        const paginatedTasksResponse = await this.tasksRepository.findAll(user.id, query);
+        const paginatedTasksResponse = await this.tasksRepository.findAll(userId, query);
         const mappedTask = paginatedTasksResponse.items.map((task: TaskEntity) =>
             this.toTaskResponse(task),
         );
@@ -34,10 +33,10 @@ export class TasksService {
     }
 
     async findFeed(
-        user: ActiveUser,
+        userId: number,
         query: TaskCursorQuery,
     ): Promise<TaskCursorPaginatedResponse<TaskResponse>> {
-        const cursorPaginatedTasksResponse = await this.tasksRepository.findFeed(user.id, query);
+        const cursorPaginatedTasksResponse = await this.tasksRepository.findFeed(userId, query);
         const mappedTask = cursorPaginatedTasksResponse.items.map((task: TaskEntity) =>
             this.toTaskResponse(task),
         );
@@ -48,8 +47,8 @@ export class TasksService {
         };
     }
 
-    async findOne(id: number, user: ActiveUser): Promise<TaskResponse> {
-        const task = await this.tasksRepository.findOne(id, user.id);
+    async findOne(taskId: number, userId: number): Promise<TaskResponse> {
+        const task = await this.tasksRepository.findOne(taskId, userId);
 
         if (!task) {
             throw new NotFoundException('Task not found.');
@@ -58,18 +57,18 @@ export class TasksService {
         return this.toTaskResponse(task);
     }
 
-    async create(createTaskDto: CreateTaskDto, user: ActiveUser): Promise<TaskResponse> {
-        const createdTask = await this.tasksRepository.create(createTaskDto, user.id);
+    async create(createTaskDto: CreateTaskDto, userId: number): Promise<TaskResponse> {
+        const createdTask = await this.tasksRepository.create(createTaskDto, userId);
 
         return this.toTaskResponse(createdTask);
     }
 
     async update(
-        id: number,
+        taskId: number,
+        userId: number,
         updateTaskDto: UpdateTaskDto,
-        user: ActiveUser,
     ): Promise<TaskResponse> {
-        const updatedTask = await this.tasksRepository.update(id, updateTaskDto, user.id);
+        const updatedTask = await this.tasksRepository.update(taskId, updateTaskDto, userId);
 
         if (!updatedTask) {
             throw new NotFoundException('Task not found.');
@@ -78,8 +77,8 @@ export class TasksService {
         return this.toTaskResponse(updatedTask);
     }
 
-    async delete(id: number, user: ActiveUser): Promise<MessageResponse> {
-        const isDeleted = await this.tasksRepository.delete(id, user.id);
+    async delete(taskId: number, userId: number): Promise<MessageResponse> {
+        const isDeleted = await this.tasksRepository.delete(taskId, userId);
 
         if (!isDeleted) {
             throw new NotFoundException('Task not found.');
