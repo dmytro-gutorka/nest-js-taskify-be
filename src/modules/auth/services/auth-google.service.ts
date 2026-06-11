@@ -3,8 +3,7 @@ import {Injectable, ConflictException, BadRequestException} from "@nestjs/common
 import {GoogleAuthService} from "./google-auth.service.js";
 import {AuthRepository} from "../repositories/auth.repository.js";
 import {AuthRegistrationService} from "./auth-registration.service.js";
-import {SignInGoogleDto} from "../../tasks/task.types.js";
-import {TokensPair} from "../auth.types.js";
+import {TokensPair, SignInGoogleDto} from "../auth.types.js";
 import {AuthProvider} from "../../../infrastructure/database/prisma/generated/enums.js";
 import {ActiveUser} from "../../../common/index.js";
 

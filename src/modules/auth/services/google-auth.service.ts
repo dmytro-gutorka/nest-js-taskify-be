@@ -1,8 +1,8 @@
 import {Inject, Injectable, UnauthorizedException, } from "@nestjs/common";
 import {OAuth2Client,  type TokenPayload} from "google-auth-library";
 import { type ConfigType} from "@nestjs/config";
-import {GoogleUserPayload} from "../../tasks/task.types.js";
 import {authZodConfig} from "../configs/auth-zod.config.js";
+import {GoogleUserPayload} from "../auth.types.js";
 
 
 @Injectable()

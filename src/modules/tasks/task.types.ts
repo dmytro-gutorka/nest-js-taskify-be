@@ -6,13 +6,10 @@ import type { TaskQuerySchema } from './schemas/task-query.schema.js';
 import type { ValueOf } from '../../common/index.js';
 import { type TaskStatusApiMap, TaskPriorityApiMap } from './tasks.constants.js';
 import type { Task } from '../../infrastructure/database/prisma/generated/client.js';
-import {SignInGoogleSchema} from "../auth/schemas/sign-in-google.schema.js";
 
 // ! DTOs
 export type CreateTaskDto = ZodInfer<typeof CreateTaskSchema>;
 export type UpdateTaskDto = ZodInfer<typeof UpdateTaskSchema>;
-
-export type SignInGoogleDto = ZodInfer<typeof SignInGoogleSchema>;
 
 // ! Queries
 export type TaskFindAllQuery = ZodInfer<typeof TaskQuerySchema>;
@@ -46,11 +43,4 @@ export interface TaskPagePaginatedResponse<T> {
 export interface TaskCursorPaginatedResponse<T> {
     items: T[];
     nextCursor: number | null;
-}
-
-
-export interface GoogleUserPayload {
-    providerAccountId: string;
-    email: string;
-    name?: string;
 }

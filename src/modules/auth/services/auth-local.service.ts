@@ -9,7 +9,7 @@ import { AppJwtService } from './app-jwt.service.js';
 import { CryptoService } from './crypto.service.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { AuthRegistrationService } from './auth-registration.service.js';
-import type { SignUpLocalDto, TokensPair, SignInLocalDto } from '../auth.types.js';
+import type {SignUpLocalDto, TokensPair, SignInLocalDto, SetLocalPasswordDto} from '../auth.types.js';
 import type { ActiveUser } from '../../../common/index.js';
 
 @Injectable()
@@ -98,7 +98,7 @@ export class AuthLocalService {
 
     async setPassword(
         activeUser: ActiveUser,
-        setLocalPasswordDto: { password: string },
+        setLocalPasswordDto: SetLocalPasswordDto,
     ): Promise<void> {
         const existingLocalAuth = await this.authRepository.findByUserIdAndProvider(
             activeUser.id,
@@ -115,7 +115,9 @@ export class AuthLocalService {
         );
 
         if (!existingGoogleAuth) {
-            throw new BadRequestException('Only Google users can set a local password this way');
+            throw new BadRequestException(
+                'Only Google users can set a local password this way',
+            );
         }
 
         await this.authRegistrationService.registerUserWithAuth({

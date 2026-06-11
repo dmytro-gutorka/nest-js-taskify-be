@@ -1,8 +1,14 @@
-import type {SignInGoogleDto} from "../tasks/task.types.js";
-import type {SignUpLocalDto, AccessToken, SignInLocalDto} from './auth.types.js';
+import type {
+    SignUpLocalDto,
+    AccessToken,
+    SignInLocalDto,
+    SetLocalPasswordDto,
+    SignInGoogleDto,
+    UpdatePrimaryEmailDto
+} from './auth.types.js';
 import type {Response} from 'express';
 import {ZodValidationPipe, type ActiveUser} from '../../common/index.js';
-import {Controller, Post, Body, Res, HttpCode, Get, UseGuards} from '@nestjs/common';
+import {Controller, Post, Body, Res, HttpCode, Get, UseGuards, Patch} from '@nestjs/common';
 import {AuthService} from './services/auth.service.js';
 import {AuthLocalService} from './services/auth-local.service.js';
 import {SignUpLocalSchema} from './schemas/sign-up-local.schema.js';
@@ -13,6 +19,8 @@ import {CookiesService} from './services/cookies.service.js';
 import {AuthGoogleService} from "./services/auth-google.service.js";
 import {SignInGoogleSchema} from "./schemas/sign-in-google.schema.js";
 import {AccessTokenGuard} from "./guards/access-token.guard.js";
+import {SetLocalPasswordSchema} from "./schemas/set-local-password.schema.js";
+import {UpdatePrimaryEmailSchema} from "./schemas/update-primary-email.schema.js";
 
 @Controller('auth')
 export class AuthController {
@@ -109,5 +117,38 @@ export class AuthController {
         return {
             message: 'Google account linked successfully',
         };
+    }
+
+    @Post('local/set-password')
+    @UseGuards(AccessTokenGuard)
+    @HttpCode(200)
+    async setLocalPassword(
+        @CurrentUser() user: ActiveUser,
+        @Body(new ZodValidationPipe(SetLocalPasswordSchema))
+        body: SetLocalPasswordDto,
+    ) {
+        await this.authLocalService.setPassword(user, body);
+
+        return {
+            message: 'Local password has been set successfully',
+        };
+    }
+
+    @Get('primary-email-options')
+    @UseGuards(AccessTokenGuard)
+    getPrimaryEmailOptions(
+        @CurrentUser() user: ActiveUser,
+    ) {
+        return this.authService.getPrimaryEmailOptions(user);
+    }
+
+    @Patch('primary-email')
+    @UseGuards(AccessTokenGuard)
+    updatePrimaryEmail(
+        @CurrentUser() user: ActiveUser,
+        @Body(new ZodValidationPipe(UpdatePrimaryEmailSchema))
+        body: UpdatePrimaryEmailDto,
+    ) {
+        return this.authService.updatePrimaryEmail(user, body);
     }
 }
