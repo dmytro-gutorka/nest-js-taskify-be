@@ -6,6 +6,7 @@ import {AccessTokenGuard} from "./guards/access-token.guard.js";
 import {CookiesService} from "./services/cookies.service.js";
 import {authZodConfig} from './configs/auth-zod.config.js';
 import {CryptoService} from "./services/crypto.service.js";
+import {GoogleAuthService} from "./services/google-auth.service.js";
 
 @Module({
     imports: [
@@ -16,14 +17,16 @@ import {CryptoService} from "./services/crypto.service.js";
         CookiesService,
         AccessTokenGuard,
         RefreshTokenGuard,
-        CryptoService
+        CryptoService,
+        GoogleAuthService,
     ],
     exports: [
-        CryptoService,
         AppJwtService,
+        CryptoService,
         CookiesService,
         AccessTokenGuard,
         RefreshTokenGuard,
+        GoogleAuthService,
     ],
 })
 export class AuthCoreModule {
