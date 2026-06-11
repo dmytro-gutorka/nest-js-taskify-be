@@ -6,15 +6,21 @@ import type {
     TaskFindAllQuery,
     TaskPagePaginatedResponse,
     TaskCursorQuery,
-    TaskCursorPaginatedResponse, CreateTaskDto, UpdateTaskDto
-} from "../task.types.js";
-import {buildTaskSearchWhere} from "../utils/buildTaskSearchWhere.js";
+    TaskCursorPaginatedResponse,
+    CreateTaskDto,
+    UpdateTaskDto,
+    TaskEntity,
+} from '../task.types.js';
+import { buildTaskSearchWhere } from '../utils/buildTaskSearchWhere.js';
 
 @Injectable()
 export class TasksRepository {
     constructor(private readonly database: DatabaseService) {}
 
-    async findAll(authorId: number, query: TaskFindAllQuery): Promise<TaskPagePaginatedResponse> {
+    async findAll(
+        authorId: number,
+        query: TaskFindAllQuery,
+    ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
         const {
             search,
             searchBy,
@@ -33,6 +39,7 @@ export class TasksRepository {
             ...buildTaskSearchWhere(search, searchBy),
         };
 
+        console.log(where);
         const orderBy = { [sortBy]: order };
         const skip = (page - 1) * limit;
         const [items, total] = await this.database.$transaction([
@@ -54,7 +61,10 @@ export class TasksRepository {
         };
     }
 
-    async findFeed(authorId: number, query: TaskCursorQuery): Promise<TaskCursorPaginatedResponse> {
+    async findFeed(
+        authorId: number,
+        query: TaskCursorQuery,
+    ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
         const { cursor, limit = 10 } = query;
 
         const items = await this.database.task.findMany({

@@ -1,15 +1,15 @@
 enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
+  TODO        @map("todo")
+  IN_PROGRESS @map("in_progress")
+  DONE        @map("done")
 
   @@map("tasks_status_enum")
 }
 
 enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
+  LOW    @map("low")
+  MEDIUM @map("medium")
+  HIGH   @map("high")
 
   @@map("tasks_priority_enum")
 }

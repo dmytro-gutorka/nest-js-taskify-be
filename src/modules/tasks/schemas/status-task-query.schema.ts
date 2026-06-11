@@ -6,5 +6,5 @@ const statusValues = Object.values(TaskStatus);
 export const StatusTaskQuerySchema = z.object({
     status: z
         .enum(statusValues, `Available status fields are: ${statusValues.join(', ')}`)
-        .default(TaskStatus.TODO),
+        .optional(),
 });
