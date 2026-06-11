@@ -1,5 +1,5 @@
-import { registerAs } from '@nestjs/config';
-import { z } from 'zod';
+import {registerAs} from '@nestjs/config';
+import {z} from 'zod';
 
 const DEFAULT_ACCESS_TOKEN_TTL = 15 * 60;
 const DEFAULT_REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60;
@@ -17,12 +17,16 @@ const AuthEnvSchema = z.object({
         .default(DEFAULT_REFRESH_TOKEN_TTL),
     JWT_SALT_ROUNDS: z.coerce.number().positive().default(DEFAULT_SALT_ROUNDS),
     APP_ENV: z.enum(['dev', 'prod', 'test']).default('dev'),
+
+    GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
+
 });
 
 export const authZodConfig = registerAs('auth', () => {
     const env = AuthEnvSchema.parse(process.env);
 
     return {
+        googleClientId: env.GOOGLE_CLIENT_ID,
         jwtSecret: env.JWT_SECRET,
         accessTokenTtl: env.ACCESS_TOKEN_TTL,
         refreshTokenTtl: env.REFRESH_TOKEN_TTL,

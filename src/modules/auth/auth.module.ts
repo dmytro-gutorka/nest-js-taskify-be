@@ -6,6 +6,7 @@ import {AuthService} from './services/auth.service.js';
 import {AuthLocalService} from './services/auth-local.service.js';
 import {AuthRegistrationService} from './services/auth-registration.service.js';
 import {AuthCoreModule} from "./auth-core.module.js";
+import {AuthGoogleService} from "./services/auth-google.service.js";
 
 @Module({
     imports: [UsersModule, AuthCoreModule],
@@ -15,6 +16,7 @@ import {AuthCoreModule} from "./auth-core.module.js";
         AuthService,
         AuthLocalService,
         AuthRegistrationService,
+        AuthGoogleService,
     ],
 })
 export class AuthModule {
