@@ -4,16 +4,18 @@ import {
     type CanActivate,
     type ExecutionContext,
 } from '@nestjs/common';
-import { AppJwtService } from '../services/app-jwt.service.js';
-import type { Request } from 'express';
+import {AppJwtService} from '../services/app-jwt.service.js';
+import type {Request} from 'express';
+import {REFRESH_TOKEN_COOKIE_NAME} from "../../../common/constants/index.js";
 
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {
-    constructor(private readonly jwtService: AppJwtService) {}
+    constructor(private readonly jwtService: AppJwtService) {
+    }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const req = context.switchToHttp().getRequest<Request>();
-        const refreshToken = req.cookies?.['refresh_token'] as string | undefined;
+        const refreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE_NAME] as string | undefined;
 
         if (!refreshToken) {
             throw new UnauthorizedException();

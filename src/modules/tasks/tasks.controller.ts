@@ -1,22 +1,26 @@
-import { Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
-import { CursorPaginationSchema, ParamsIdSchema, type ParamId } from '@common/schemas';
-import { ZodQuery, ZodParam, ZodBody } from '@common/decorators';
+import {Controller, Delete, Get, HttpCode, Patch, Post, UseGuards} from '@nestjs/common';
+import {CursorPaginationSchema, ParamsIdSchema, type ParamId} from '@common/schemas';
+import {ZodQuery, ZodParam, ZodBody} from '@common/decorators';
 import type {
     TaskFindAllQuery,
     TaskCursorQuery,
     CreateTaskDto,
     UpdateTaskDto,
 } from './task.types.js';
-import { TasksService } from './services/tasks.service.js';
-import { TaskQuerySchema } from './schemas/task-query.schema.js';
-import { CreateTaskSchema } from './schemas/create-task.schema.js';
-import { UpdateTaskSchema } from './schemas/update-task.schema.js';
-import type { ActiveUser } from '../../common/index.js';
-import { CurrentUser } from '../decorators/current-user.decorator.js';
+import {TasksService} from './services/tasks.service.js';
+import {TaskQuerySchema} from './schemas/task-query.schema.js';
+import {CreateTaskSchema} from './schemas/create-task.schema.js';
+import {UpdateTaskSchema} from './schemas/update-task.schema.js';
+import type {ActiveUser} from '../../common/index.js';
+import {CurrentUser} from '../auth/decorators/current-user.decorator.js';
+import {AccessTokenGuard} from "../auth/guards/access-token.guard.js";
+
 
 @Controller('tasks')
+@UseGuards(AccessTokenGuard)
 export class TasksController {
-    constructor(private readonly tasksService: TasksService) {}
+    constructor(private readonly tasksService: TasksService) {
+    }
 
     @Get()
     findAll(@CurrentUser() user: ActiveUser, @ZodQuery(TaskQuerySchema) query: TaskFindAllQuery) {

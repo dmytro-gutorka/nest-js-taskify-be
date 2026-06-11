@@ -6,7 +6,7 @@ import { SignUpLocalSchema } from './schemas/sign-up-local.schema.js';
 import type { SignUpLocalDto, AccessToken, SignInLocalDto } from './auth.types.js';
 import { SignInLocalSchema } from './schemas/sign-in-local.schema.js';
 import { RefreshTokenGuard } from './guards/refresh-token.guard.js';
-import { CurrentUser } from '../decorators/current-user.decorator.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
 import type { Response } from 'express';
 import { CookiesService } from './services/cookies.service.js';
 

@@ -3,7 +3,7 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@database';
 import { UsersModule } from '@users';
 import { TasksModule } from '@tasks';
-import { AuthModule } from './modules/auth/auth.module.js';
+import {AuthModule} from "./modules/auth/auth.module.js";
 
 @Module({
     imports: [

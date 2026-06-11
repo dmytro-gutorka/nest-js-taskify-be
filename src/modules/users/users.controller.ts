@@ -1,4 +1,4 @@
-import { type ActiveUser, ZodBody } from '@common';
+import {type ActiveUser, ZodBody} from '@common';
 import {
     Controller,
     Get,
@@ -8,17 +8,20 @@ import {
     UseInterceptors,
     Post,
     BadRequestException,
-    UploadedFile,
+    UploadedFile, UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './services/users.service.js';
-import { UpdateUserSchema } from './schemas/update-user.schema.js';
-import type { UpdateUserDto } from './users.types.js';
-import { AvatarUploadInterceptor } from '../media/interceptors/avatar-upload.interceptor.js';
-import { CurrentUser } from '../decorators/current-user.decorator.js';
+import {UsersService} from './services/users.service.js';
+import {UpdateUserSchema} from './schemas/update-user.schema.js';
+import type {UpdateUserDto} from './users.types.js';
+import {AvatarUploadInterceptor} from '../media/interceptors/avatar-upload.interceptor.js';
+import {CurrentUser} from '../auth/decorators/current-user.decorator.js';
+import {AccessTokenGuard} from "../auth/guards/access-token.guard.js";
 
 @Controller('users')
+@UseGuards(AccessTokenGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {
+    }
 
     @Get('me')
     findMe(@CurrentUser() user: ActiveUser) {
