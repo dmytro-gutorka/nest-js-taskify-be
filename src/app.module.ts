@@ -7,6 +7,7 @@ import {AuthModule} from "./modules/auth/auth.module.js";
 import {ExceptionFilterModule} from "./common/exception-filter/index.js";
 import {NotificationModule} from "./modules/notification/notification.module.js";
 import {BullModule} from "@nestjs/bullmq";
+import {ScheduleModule} from "@nestjs/schedule";
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import {BullModule} from "@nestjs/bullmq";
             envFilePath: '.env',
         }),
 
+        ScheduleModule.forRoot(),
         BullModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],

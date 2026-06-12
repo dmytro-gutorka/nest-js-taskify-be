@@ -31,6 +31,11 @@ const AuthEnvSchema = z.object({
         .positive()
         .default(DEFAULT_RESET_PASSWORD_TOKEN_TTL_MS),
 
+    PASSWORD_RESET_TOKEN_CLEANUP_DAYS: z.coerce
+        .number()
+        .int()
+        .positive()
+
 });
 
 export const authEnvConfig = registerAs('auth', () => {
@@ -47,5 +52,7 @@ export const authEnvConfig = registerAs('auth', () => {
         frontendUrl: env.APP_FRONTEND_URL,
         resetPasswordTokenBytes: env.RESET_PASSWORD_TOKEN_BYTES,
         resetPasswordTokenTtlMs: env.RESET_PASSWORD_TOKEN_TTL_MS,
+
+        passwordResetTokenCleanupDays: env.PASSWORD_RESET_TOKEN_CLEANUP_DAYS,
     };
 });

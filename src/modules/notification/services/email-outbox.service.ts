@@ -83,4 +83,33 @@ export class EmailOutboxService {
             tx,
         );
     }
+
+    async markStuckProcessingAsFailed(
+        processingBefore: Date,
+        tx?: Prisma.TransactionClient,
+    ): Promise<number> {
+        return this.emailOutboxRepository.markStuckProcessingAsFailed(
+            processingBefore,
+            tx,
+        );
+    }
+
+    async deleteFinalizedOlderThan(
+        olderThan: Date,
+        tx?: Prisma.TransactionClient,
+    ): Promise<number> {
+        return this.emailOutboxRepository.deleteFinalizedOlderThan(olderThan, tx);
+    }
+
+    findManyForEnqueue(
+        failedBefore: Date,
+        limit: number,
+        tx?: Prisma.TransactionClient,
+    ): Promise<EmailOutboxEntity[]> {
+        return this.emailOutboxRepository.findManyForEnqueue(
+            failedBefore,
+            limit,
+            tx,
+        );
+    }
 }

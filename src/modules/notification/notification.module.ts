@@ -9,6 +9,7 @@ import {EmailOutboxProcessor} from "./processors/email-outbox.processor.js";
 import {EMAIL_OUTBOX_QUEUE} from "./constants/email-outbox-queue.constants.js";
 import {BullModule} from "@nestjs/bullmq";
 import {notificationEnvConfig} from "./configs/notification-env.config.js";
+import {NotificationMaintenanceService} from "./services/notification-maintenance.service.js";
 
 @Module({
     imports: [
@@ -29,6 +30,8 @@ import {notificationEnvConfig} from "./configs/notification-env.config.js";
         },
 
         EmailOutboxProcessor,
+        NotificationMaintenanceService,
+
     ],
     exports: [
         EmailOutboxService,
