@@ -1,7 +1,7 @@
-import {Module} from '@nestjs/common';
-import {CloudinaryMediaStorageService} from './cloudinary-media-storage.service.js';
-import {MediaStorageService} from './media-storage.types.js';
-import {ConfigModule} from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { CloudinaryMediaStorageService } from './cloudinary-media-storage.service.js';
+import { MediaStorageService } from './media-storage.types.js';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
     imports: [ConfigModule],
@@ -14,5 +14,4 @@ import {ConfigModule} from '@nestjs/config';
     ],
     exports: [MediaStorageService],
 })
-export class MediaStorageModule {
-}
+export class MediaStorageModule {}

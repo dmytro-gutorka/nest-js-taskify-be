@@ -1,11 +1,12 @@
-import {AuthProvider} from '../../../infrastructure/database/prisma/generated/enums.js';
-import {Injectable, NotFoundException, BadRequestException} from '@nestjs/common';
-import {AppJwtService} from './app-jwt.service.js';
-import {AuthRepository} from '../repositories/auth.repository.js';
-import {Prisma} from '@database/client';
-import type {ActiveUser} from '@common/types';
-import {UsersService} from "../../users/services/users.service.js";
-import {UpdatePrimaryEmailDto, PrimaryEmailOptionsResponse} from "../auth.types.js";
+import { AuthProvider } from '../../../infrastructure/database/prisma/generated/enums.js';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { AppJwtService } from './app-jwt.service.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
+import { Prisma } from '@database/client';
+import { UsersService } from '../../users/services/users.service.js';
+import { PrimaryEmailOptionsResponse } from '../auth.types.js';
+import { ActiveUser } from '../../../common/types/common.types.js';
+import { UpdatePrimaryEmailDto } from '../dto/update-primary-email.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -13,13 +14,9 @@ export class AuthService {
         private readonly jwtService: AppJwtService,
         private readonly authRepository: AuthRepository,
         private readonly usersService: UsersService,
-    ) {
-    }
+    ) {}
 
-    async findLocalAuthByUserId(
-        userId: number,
-        tx?: Prisma.TransactionClient,
-    ) {
+    async findLocalAuthByUserId(userId: number, tx?: Prisma.TransactionClient) {
         const auth = await this.authRepository.findByUserIdAndProvider(
             userId,
             AuthProvider.LOCAL,
@@ -45,12 +42,8 @@ export class AuthService {
         return this.jwtService.signTokensPair(activeUser);
     }
 
-    async getPrimaryEmailOptions(
-        activeUser: ActiveUser,
-    ): Promise<PrimaryEmailOptionsResponse> {
-        const authAccounts = await this.authRepository.findManyByUserId(
-            activeUser.id,
-        );
+    async getPrimaryEmailOptions(activeUser: ActiveUser): Promise<PrimaryEmailOptionsResponse> {
+        const authAccounts = await this.authRepository.findManyByUserId(activeUser.id);
 
         const emailToProvidersMap = new Map<string, AuthProvider[]>();
 
@@ -63,37 +56,25 @@ export class AuthService {
         }
 
         return {
-            options: [...emailToProvidersMap.entries()].map(
-                ([email, providers]) => ({
-                    email,
-                    providers,
-                    isPrimary: email === activeUser.email,
-                }),
-            ),
+            options: [...emailToProvidersMap.entries()].map(([email, providers]) => ({
+                email,
+                providers,
+                isPrimary: email === activeUser.email,
+            })),
         };
     }
 
-    async updatePrimaryEmail(
-        activeUser: ActiveUser,
-        updatePrimaryEmailDto: UpdatePrimaryEmailDto,
-    ) {
-        const authAccounts = await this.authRepository.findManyByUserId(
-            activeUser.id,
-        );
+    async updatePrimaryEmail(activeUser: ActiveUser, updatePrimaryEmailDto: UpdatePrimaryEmailDto) {
+        const authAccounts = await this.authRepository.findManyByUserId(activeUser.id);
 
         const canUseEmail = authAccounts.some(
             (authAccount) => authAccount.email === updatePrimaryEmailDto.email,
         );
 
         if (!canUseEmail) {
-            throw new BadRequestException(
-                'Email must belong to one of linked auth accounts',
-            );
+            throw new BadRequestException('Email must belong to one of linked auth accounts');
         }
 
-        return this.usersService.updatePrimaryEmail(
-            activeUser.id,
-            updatePrimaryEmailDto.email,
-        );
+        return this.usersService.updatePrimaryEmail(activeUser.id, updatePrimaryEmailDto.email);
     }
 }

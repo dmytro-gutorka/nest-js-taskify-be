@@ -1,9 +1,8 @@
-import {Inject, Injectable, UnauthorizedException, } from "@nestjs/common";
-import {OAuth2Client,  type TokenPayload} from "google-auth-library";
-import { type ConfigType} from "@nestjs/config";
-import {authEnvConfig} from "../configs/auth-env.config.js";
-import {VerifiedGoogleUser} from "../auth.types.js";
-
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { OAuth2Client, type TokenPayload } from 'google-auth-library';
+import { type ConfigType } from '@nestjs/config';
+import { authEnvConfig } from '../configs/auth-env.config.js';
+import { VerifiedGoogleUser } from '../auth.types.js';
 
 @Injectable()
 export class GoogleAuthService {

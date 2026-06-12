@@ -2,7 +2,7 @@ import type { CreateAuthInput, AuthEntity } from '../auth.types.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../../../infrastructure/database/index.js';
 import { Prisma, type AuthProvider } from '@database/client';
-import { SortOrder } from '../../../common/index.js';
+import { SortOrder } from '../../../common/enums/sort-order.enum.js';
 
 @Injectable()
 export class AuthRepository {

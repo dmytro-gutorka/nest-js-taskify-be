@@ -1,24 +1,24 @@
-import {EmailOutboxEntity, CreateEmailOutboxInput, UpdateEmailOutboxInput} from "../notification.types.js";
-import {Injectable} from "@nestjs/common";
-import {EmailOutboxStatus} from '@database/enums'
-import {DatabaseService} from "../../../infrastructure/database/index.js";
-import {Prisma} from '@database/client';
-import {EmailProvider} from "../enums/email-provider.enum.js";
-import {SortOrder} from "../../../common/index.js";
+import {
+    EmailOutboxEntity,
+    CreateEmailOutboxInput,
+    UpdateEmailOutboxInput,
+} from '../notification.types.js';
+import { Injectable } from '@nestjs/common';
+import { EmailOutboxStatus } from '@database/enums';
+import { DatabaseService } from '../../../infrastructure/database/index.js';
+import { Prisma } from '@database/client';
+import { EmailProvider } from '../enums/email-provider.enum.js';
+import { SortOrder } from '../../../common/enums/sort-order.enum.js';
 
 @Injectable()
 export class EmailOutboxRepository {
-    constructor(private readonly database: DatabaseService) {
-    }
+    constructor(private readonly database: DatabaseService) {}
 
-    findOneById(
-        id: number,
-        tx?: Prisma.TransactionClient,
-    ): Promise<EmailOutboxEntity | null> {
+    findOneById(id: number, tx?: Prisma.TransactionClient): Promise<EmailOutboxEntity | null> {
         const client = tx ?? this.database;
 
         return client.emailOutbox.findUnique({
-            where: {id},
+            where: { id },
         });
     }
 
@@ -45,7 +45,7 @@ export class EmailOutboxRepository {
         const client = tx ?? this.database;
 
         await client.emailOutbox.update({
-            where: {id},
+            where: { id },
             data: input,
         });
     }
@@ -59,10 +59,7 @@ export class EmailOutboxRepository {
         const result = await client.emailOutbox.deleteMany({
             where: {
                 status: {
-                    in: [
-                        EmailOutboxStatus.SENT,
-                        EmailOutboxStatus.EXCEEDED_MAX_ATTEMPTS,
-                    ],
+                    in: [EmailOutboxStatus.SENT, EmailOutboxStatus.EXCEEDED_MAX_ATTEMPTS],
                 },
                 updatedAt: {
                     lt: olderThan,

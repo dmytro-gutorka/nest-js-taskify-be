@@ -9,8 +9,11 @@ import { AppJwtService } from './app-jwt.service.js';
 import { CryptoService } from './crypto.service.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { AuthRegistrationService } from './auth-registration.service.js';
-import type {SignUpLocalDto, TokensPair, SignInLocalDto, SetLocalPasswordDto} from '../auth.types.js';
-import type { ActiveUser } from '../../../common/index.js';
+import type { TokensPair } from '../auth.types.js';
+import { SignUpLocalDto } from '../dto/sign-up-local.dto.js';
+import { SignInLocalDto } from '../dto/sign-in-local.dto.js';
+import { ActiveUser } from '../../../common/types/common.types.js';
+import { SetLocalPasswordDto } from '../dto/set-local-password.dto.js';
 
 @Injectable()
 export class AuthLocalService {
@@ -115,9 +118,7 @@ export class AuthLocalService {
         );
 
         if (!existingGoogleAuth) {
-            throw new BadRequestException(
-                'Only Google users can set a local password this way',
-            );
+            throw new BadRequestException('Only Google users can set a local password this way');
         }
 
         await this.authRegistrationService.registerUserWithAuth({

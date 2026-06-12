@@ -1,30 +1,25 @@
-import {Injectable} from "@nestjs/common";
-import {CreatePasswordResetTokenInput, PasswordResetTokenEntity} from "../auth.types.js";
-import {DatabaseService} from "../../../infrastructure/database/index.js";
-import {Prisma} from '@database/client'
-
+import { Injectable } from '@nestjs/common';
+import { CreatePasswordResetTokenInput, PasswordResetTokenEntity } from '../auth.types.js';
+import { DatabaseService } from '../../../infrastructure/database/index.js';
+import { Prisma } from '@database/client';
 
 @Injectable()
 export class PasswordResetTokenRepository {
-    constructor(private readonly database: DatabaseService) {
-    }
+    constructor(private readonly database: DatabaseService) {}
 
-    async deleteInactiveOlderThan(
-        olderThan: Date,
-        tx?: Prisma.TransactionClient,
-    ): Promise<number> {
+    async deleteInactiveOlderThan(olderThan: Date, tx?: Prisma.TransactionClient): Promise<number> {
         const client = tx ?? this.database;
 
         const result = await client.passwordResetToken.deleteMany({
             where: {
                 OR: [
-                    {usedAt: {not: null,}},
+                    { usedAt: { not: null } },
                     {
-                        revokedAt: {not: null},
+                        revokedAt: { not: null },
                     },
-                    {expiresAt: {lt: new Date()}},
+                    { expiresAt: { lt: new Date() } },
                 ],
-                createdAt: {lt: olderThan},
+                createdAt: { lt: olderThan },
             },
         });
 
@@ -55,10 +50,7 @@ export class PasswordResetTokenRepository {
         });
     }
 
-    async revokeActiveByUserId(
-        userId: number,
-        tx?: Prisma.TransactionClient,
-    ): Promise<void> {
+    async revokeActiveByUserId(userId: number, tx?: Prisma.TransactionClient): Promise<void> {
         const client = tx ?? this.database;
 
         await client.passwordResetToken.updateMany({
@@ -76,10 +68,7 @@ export class PasswordResetTokenRepository {
         });
     }
 
-    async markUsed(
-        id: number,
-        tx?: Prisma.TransactionClient,
-    ): Promise<void> {
+    async markUsed(id: number, tx?: Prisma.TransactionClient): Promise<void> {
         const client = tx ?? this.database;
 
         await client.passwordResetToken.update({

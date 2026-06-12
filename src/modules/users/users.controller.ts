@@ -1,4 +1,3 @@
-import {type ActiveUser, ZodBody} from '@common';
 import {
     Controller,
     Get,
@@ -8,20 +7,18 @@ import {
     UseInterceptors,
     Post,
     BadRequestException,
-    UploadedFile, UseGuards,
+    UploadedFile,
+    Body,
 } from '@nestjs/common';
-import {UsersService} from './services/users.service.js';
-import {UpdateUserSchema} from './schemas/update-user.schema.js';
-import type {UpdateUserDto} from './users.types.js';
-import {AvatarUploadInterceptor} from '../media/interceptors/avatar-upload.interceptor.js';
-import {CurrentUser} from '../auth/decorators/current-user.decorator.js';
-import {AccessTokenGuard} from "../auth/guards/access-token.guard.js";
+import { UsersService } from './services/users.service.js';
+import { AvatarUploadInterceptor } from '../media/interceptors/avatar-upload.interceptor.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
+import { type ActiveUser } from '../../common/types/common.types.js';
 
 @Controller('users')
-@UseGuards(AccessTokenGuard)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {
-    }
+    constructor(private readonly usersService: UsersService) {}
 
     @Get('me')
     findMe(@CurrentUser() user: ActiveUser) {
@@ -29,11 +26,7 @@ export class UsersController {
     }
 
     @Patch('me')
-    updateMe(
-        @CurrentUser() user: ActiveUser,
-        @ZodBody(UpdateUserSchema)
-        body: UpdateUserDto,
-    ) {
+    updateMe(@CurrentUser() user: ActiveUser, @Body() body: UpdateUserDto) {
         return this.usersService.update(user.id, body);
     }
 

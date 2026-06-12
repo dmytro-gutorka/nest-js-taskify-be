@@ -5,11 +5,11 @@ import {
     MediaStorageFolderPreset,
     MediaStorageService,
 } from './media-storage.types.js';
-import {Injectable} from '@nestjs/common';
-import {ConfigService} from '@nestjs/config';
-import {type UploadApiResponse, v2 as cloudinary} from 'cloudinary';
-import {MediaStorageProvider} from '../database/prisma/generated/enums.js';
-import {MediaStorageResources} from './media-storage.constants.js';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { type UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { MediaStorageProvider } from '../database/prisma/generated/enums.js';
+import { MediaStorageResources } from './media-storage.constants.js';
 
 @Injectable()
 export class CloudinaryMediaStorageService extends MediaStorageService {
