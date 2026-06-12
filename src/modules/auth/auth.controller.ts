@@ -1,28 +1,21 @@
-import type {
-    SignUpLocalDto,
-    AccessTokenResponse,
-    SignInLocalDto,
-    SetLocalPasswordDto,
-    SignInGoogleDto,
-    UpdatePrimaryEmailDto, ConfirmPasswordResetDto
-} from './auth.types.js';
-import type {Response} from 'express';
-import {ZodValidationPipe, type ActiveUser} from '../../common/index.js';
-import {Controller, Post, Body, Res, HttpCode, Get, UseGuards, Patch} from '@nestjs/common';
-import {AuthService} from './services/auth.service.js';
-import {AuthLocalService} from './services/auth-local.service.js';
-import {SignUpLocalSchema} from './schemas/sign-up-local.schema.js';
-import {SignInLocalSchema} from './schemas/sign-in-local.schema.js';
-import {RefreshTokenGuard} from './guards/refresh-token.guard.js';
-import {CurrentUser} from './decorators/current-user.decorator.js';
-import {CookiesService} from './services/cookies.service.js';
-import {AuthGoogleService} from "./services/auth-google.service.js";
-import {SignInGoogleSchema} from "./schemas/sign-in-google.schema.js";
-import {AccessTokenGuard} from "./guards/access-token.guard.js";
-import {SetLocalPasswordSchema} from "./schemas/set-local-password.schema.js";
-import {UpdatePrimaryEmailSchema} from "./schemas/update-primary-email.schema.js";
-import {ConfirmPasswordResetSchema} from "./schemas/confirm-password-reset.schema.js";
-import {PasswordResetService} from "./services/password-reset.service.js";
+import type { AccessTokenResponse } from './auth.types.js';
+import type { Response } from 'express';
+import { Controller, Post, Body, Res, HttpCode, Get, UseGuards, Patch } from '@nestjs/common';
+import { AuthService } from './services/auth.service.js';
+import { AuthLocalService } from './services/auth-local.service.js';
+import { RefreshTokenGuard } from './guards/refresh-token.guard.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
+import { CookiesService } from './services/cookies.service.js';
+import { AuthGoogleService } from './services/auth-google.service.js';
+import { PasswordResetService } from './services/password-reset.service.js';
+import { SignUpLocalDto } from './dto/sign-up-local.dto.js';
+import { SignInLocalDto } from './dto/sign-in-local.dto.js';
+import { type ActiveUser } from '../../common/types/common.types.js';
+import { SignInGoogleDto } from './dto/sign-in-google.dto.js';
+import { SetLocalPasswordDto } from './dto/set-local-password.dto.js';
+import { UpdatePrimaryEmailDto } from './dto/update-primary-email.dto.js';
+import { ConfirmPasswordResetDto } from './dto/confirm-password-reset.dto.js';
+import { SkipAccessToken } from '../../common/decorators/skip-access-token.decorator.js';
 
 @Controller('auth')
 export class AuthController {
@@ -32,14 +25,13 @@ export class AuthController {
         private readonly authLocalService: AuthLocalService,
         private readonly authGoogleService: AuthGoogleService,
         private readonly passwordResetService: PasswordResetService,
-    ) {
-    }
+    ) {}
 
     @Post('sign-up')
+    @SkipAccessToken()
     async signUp(
-        @Body(new ZodValidationPipe(SignUpLocalSchema))
-        body: SignUpLocalDto,
-        @Res({passthrough: true}) res: Response,
+        @Body() body: SignUpLocalDto,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<AccessTokenResponse> {
         const tokens = await this.authLocalService.signUp(body);
 
@@ -51,11 +43,11 @@ export class AuthController {
     }
 
     @Post('sign-in')
+    @SkipAccessToken()
     @HttpCode(200)
     async signIn(
-        @Body(new ZodValidationPipe(SignInLocalSchema))
-        body: SignInLocalDto,
-        @Res({passthrough: true}) res: Response,
+        @Body() body: SignInLocalDto,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<AccessTokenResponse> {
         const tokens = await this.authLocalService.signIn(body);
 
@@ -67,8 +59,8 @@ export class AuthController {
     }
 
     @Get('sign-out')
-    @UseGuards(RefreshTokenGuard)
-    signOut(@Res({passthrough: true}) res: Response) {
+    @SkipAccessToken()
+    signOut(@Res({ passthrough: true }) res: Response) {
         this.cookiesService.clearRefreshTokenCookie(res);
 
         return {
@@ -77,10 +69,11 @@ export class AuthController {
     }
 
     @Get('refresh')
+    @SkipAccessToken()
     @UseGuards(RefreshTokenGuard)
     refresh(
         @CurrentUser() user: ActiveUser,
-        @Res({passthrough: true}) res: Response,
+        @Res({ passthrough: true }) res: Response,
     ): AccessTokenResponse {
         const tokens = this.authService.refreshToken(user);
 
@@ -92,11 +85,11 @@ export class AuthController {
     }
 
     @Post('google')
+    @SkipAccessToken()
     @HttpCode(200)
     async signInGoogle(
-        @Body(new ZodValidationPipe(SignInGoogleSchema))
-        body: SignInGoogleDto,
-        @Res({passthrough: true}) res: Response,
+        @Body() body: SignInGoogleDto,
+        @Res({ passthrough: true }) res: Response,
     ): Promise<AccessTokenResponse> {
         const tokens = await this.authGoogleService.signIn(body);
 
@@ -108,13 +101,8 @@ export class AuthController {
     }
 
     @Post('google/link')
-    @UseGuards(AccessTokenGuard)
     @HttpCode(200)
-    async linkGoogle(
-        @CurrentUser() user: ActiveUser,
-        @Body(new ZodValidationPipe(SignInGoogleSchema))
-        body: SignInGoogleDto,
-    ) {
+    async linkGoogle(@CurrentUser() user: ActiveUser, @Body() body: SignInGoogleDto) {
         await this.authGoogleService.link(user, body);
 
         return {
@@ -123,13 +111,8 @@ export class AuthController {
     }
 
     @Post('local/set-password')
-    @UseGuards(AccessTokenGuard)
     @HttpCode(200)
-    async setLocalPassword(
-        @CurrentUser() user: ActiveUser,
-        @Body(new ZodValidationPipe(SetLocalPasswordSchema))
-        body: SetLocalPasswordDto,
-    ) {
+    async setLocalPassword(@CurrentUser() user: ActiveUser, @Body() body: SetLocalPasswordDto) {
         await this.authLocalService.setPassword(user, body);
 
         return {
@@ -138,38 +121,25 @@ export class AuthController {
     }
 
     @Get('primary-email-options')
-    @UseGuards(AccessTokenGuard)
-    getPrimaryEmailOptions(
-        @CurrentUser() user: ActiveUser,
-    ) {
+    getPrimaryEmailOptions(@CurrentUser() user: ActiveUser) {
         return this.authService.getPrimaryEmailOptions(user);
     }
 
     @Patch('primary-email')
-    @UseGuards(AccessTokenGuard)
-    updatePrimaryEmail(
-        @CurrentUser() user: ActiveUser,
-        @Body(new ZodValidationPipe(UpdatePrimaryEmailSchema))
-        body: UpdatePrimaryEmailDto,
-    ) {
+    updatePrimaryEmail(@CurrentUser() user: ActiveUser, @Body() body: UpdatePrimaryEmailDto) {
         return this.authService.updatePrimaryEmail(user, body);
     }
 
     @Post('password-reset/request')
-    @UseGuards(AccessTokenGuard)
     @HttpCode(200)
-    requestPasswordReset(
-        @CurrentUser() user: ActiveUser
-    ) {
+    requestPasswordReset(@CurrentUser() user: ActiveUser) {
         return this.passwordResetService.requestAuthenticatedPasswordReset(user);
     }
 
     @Post('password-reset/confirm')
+    @SkipAccessToken()
     @HttpCode(200)
-    async confirmPasswordReset(
-        @Body(new ZodValidationPipe(ConfirmPasswordResetSchema))
-        body: ConfirmPasswordResetDto,
-    ) {
+    async confirmPasswordReset(@Body() body: ConfirmPasswordResetDto) {
         await this.passwordResetService.confirmPasswordReset(body);
 
         return {

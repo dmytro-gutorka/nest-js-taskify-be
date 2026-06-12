@@ -1,7 +1,7 @@
-import {EmailOutbox, EmailOutboxStatus} from '@database/client'
-import {EmailProvider} from "./enums/email-provider.enum.js";
-import {Prisma} from '@database/client'
-import {Nullable} from "../../common/index.js";
+import { EmailOutbox, EmailOutboxStatus } from '@database/client';
+import { EmailProvider } from './enums/email-provider.enum.js';
+import { Prisma } from '@database/client';
+import { Nullable } from '../../common/types/common.types.js';
 
 export type EmailOutboxEntity = EmailOutbox;
 
@@ -38,4 +38,3 @@ export interface SendEmailInput {
     html: string;
     text?: string | null;
 }
-

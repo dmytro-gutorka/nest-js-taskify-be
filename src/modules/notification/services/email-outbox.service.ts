@@ -1,21 +1,21 @@
-import {EmailOutboxRepository} from "../repositories/email-outbox.repository.js";
-import {Injectable} from "@nestjs/common";
-import {CreateEmailOutboxInput, EmailOutboxEntity, UpdateEmailOutboxInput} from "../notification.types.js";
-import {Prisma, EmailOutboxStatus} from '@database/client'
+import { EmailOutboxRepository } from '../repositories/email-outbox.repository.js';
+import { Injectable } from '@nestjs/common';
+import {
+    CreateEmailOutboxInput,
+    EmailOutboxEntity,
+    UpdateEmailOutboxInput,
+} from '../notification.types.js';
+import { Prisma, EmailOutboxStatus } from '@database/client';
 
 @Injectable()
 export class EmailOutboxService {
-    constructor(private readonly emailOutboxRepository: EmailOutboxRepository) {
-    }
+    constructor(private readonly emailOutboxRepository: EmailOutboxRepository) {}
 
     enqueue(input: CreateEmailOutboxInput): Promise<EmailOutboxEntity> {
         return this.emailOutboxRepository.create(input);
     }
 
-    findOneById(
-        id: number,
-        tx?: Prisma.TransactionClient,
-    ): Promise<EmailOutboxEntity | null> {
+    findOneById(id: number, tx?: Prisma.TransactionClient): Promise<EmailOutboxEntity | null> {
         return this.emailOutboxRepository.findOneById(id, tx);
     }
 
@@ -88,10 +88,7 @@ export class EmailOutboxService {
         processingBefore: Date,
         tx?: Prisma.TransactionClient,
     ): Promise<number> {
-        return this.emailOutboxRepository.markStuckProcessingAsFailed(
-            processingBefore,
-            tx,
-        );
+        return this.emailOutboxRepository.markStuckProcessingAsFailed(processingBefore, tx);
     }
 
     async deleteFinalizedOlderThan(
@@ -106,10 +103,6 @@ export class EmailOutboxService {
         limit: number,
         tx?: Prisma.TransactionClient,
     ): Promise<EmailOutboxEntity[]> {
-        return this.emailOutboxRepository.findManyForEnqueue(
-            failedBefore,
-            limit,
-            tx,
-        );
+        return this.emailOutboxRepository.findManyForEnqueue(failedBefore, limit, tx);
     }
 }

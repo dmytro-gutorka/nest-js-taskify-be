@@ -1,20 +1,19 @@
-import {Module} from '@nestjs/common';
-import {ConfigService, ConfigModule} from '@nestjs/config';
-import {DatabaseModule} from '@database';
-import {UsersModule} from '@users';
-import {TasksModule} from '@tasks';
-import {AuthModule} from "./modules/auth/auth.module.js";
-import {ExceptionFilterModule} from "./common/exception-filter/index.js";
-import {NotificationModule} from "./modules/notification/notification.module.js";
-import {BullModule} from "@nestjs/bullmq";
-import {ScheduleModule} from "@nestjs/schedule";
+import { Module } from '@nestjs/common';
+import { ConfigService, ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@database';
+import { UsersModule } from '@users';
+import { TasksModule } from '@tasks';
+import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ExceptionFilterModule } from './common/exception-filter/exception-filter.module.js';
+import { NotificationModule } from './modules/notification/index.js';
+import { AuthModule } from './modules/auth/index.js';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             envFilePath: '.env',
         }),
-
         ScheduleModule.forRoot(),
         BullModule.forRootAsync({
             imports: [ConfigModule],
@@ -26,7 +25,6 @@ import {ScheduleModule} from "@nestjs/schedule";
                 },
             }),
         }),
-
         DatabaseModule,
         ExceptionFilterModule,
         NotificationModule,
@@ -35,5 +33,4 @@ import {ScheduleModule} from "@nestjs/schedule";
         TasksModule,
     ],
 })
-export class AppModule {
-}
+export class AppModule {}

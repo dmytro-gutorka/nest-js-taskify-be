@@ -1,10 +1,10 @@
-import {EmailOutboxJobPayload} from "../notification.types.js";
-import {Injectable, Logger} from "@nestjs/common";
-import {Processor, WorkerHost} from "@nestjs/bullmq";
-import {EMAIL_OUTBOX_QUEUE} from "../constants/email-outbox-queue.constants.js";
-import {EmailOutboxService} from "../services/email-outbox.service.js";
-import {EmailProviderService} from "../services/email-provider.service.js";
-import {Job} from "bullmq";
+import { EmailOutboxJobPayload } from '../notification.types.js';
+import { Injectable, Logger } from '@nestjs/common';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { EMAIL_OUTBOX_QUEUE } from '../constants/email-outbox-queue.constants.js';
+import { EmailOutboxService } from '../services/email-outbox.service.js';
+import { EmailProviderService } from '../services/email-provider.service.js';
+import { Job } from 'bullmq';
 
 @Injectable()
 @Processor(EMAIL_OUTBOX_QUEUE)
@@ -19,11 +19,9 @@ export class EmailOutboxProcessor extends WorkerHost {
     }
 
     async process(job: Job<EmailOutboxJobPayload>): Promise<void> {
-        const {emailOutboxId} = job.data;
+        const { emailOutboxId } = job.data;
 
-        const emailOutbox = await this.emailOutboxService.findOneById(
-            emailOutboxId,
-        );
+        const emailOutbox = await this.emailOutboxService.findOneById(emailOutboxId);
 
         if (!emailOutbox) {
             this.logger.warn(`Email outbox item ${emailOutboxId} not found`);
@@ -45,18 +43,11 @@ export class EmailOutboxProcessor extends WorkerHost {
                 text: emailOutbox.textBody,
             });
 
-            await this.emailOutboxService.markSent(
-                emailOutbox.id,
-                result.providerMessageId,
-            );
+            await this.emailOutboxService.markSent(emailOutbox.id, result.providerMessageId);
         } catch (error) {
-            const errorMessage =
-                error instanceof Error ? error.message : 'Unknown email error';
+            const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
 
-            await this.emailOutboxService.markFailed(
-                emailOutbox.id,
-                errorMessage,
-            );
+            await this.emailOutboxService.markFailed(emailOutbox.id, errorMessage);
 
             this.logger.error(
                 `Failed to send email outbox item ${emailOutbox.id}: ${errorMessage}`,

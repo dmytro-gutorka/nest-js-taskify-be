@@ -1,31 +1,30 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
-import {TasksRepository} from '../repositories/tasks.repository.js';
-import type {MessageResponse} from '@common/types';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { TasksRepository } from '../repositories/tasks.repository.js';
 import type {
-    TaskFindAllQuery,
     TaskPagePaginatedResponse,
-    TaskCursorQuery,
     TaskCursorPaginatedResponse,
-    CreateTaskDto,
-    UpdateTaskDto,
     TaskEntity,
-} from '../task.types.js';
+} from '../tasks.types.js';
+import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
+import { TaskQueryDto } from '../dto/task-query.dto.js';
+import { CreateTaskDto } from '../dto/create-task.dto.js';
+import { UpdateTaskDto } from '../dto/update-task.dto.js';
+import { MessageResponse } from '../../../common/types/responses.types.js';
 
 @Injectable()
 export class TasksService {
-    constructor(private readonly tasksRepository: TasksRepository) {
-    }
+    constructor(private readonly tasksRepository: TasksRepository) {}
 
     async findAll(
         userId: number,
-        query: TaskFindAllQuery,
+        query: TaskQueryDto,
     ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
         return await this.tasksRepository.findAll(userId, query);
     }
 
     async findFeed(
         userId: number,
-        query: TaskCursorQuery,
+        query: CursorPaginationQueryDto,
     ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
         return await this.tasksRepository.findFeed(userId, query);
     }
@@ -35,7 +34,7 @@ export class TasksService {
 
         if (!task) throw new NotFoundException('Task not found.');
 
-        return task
+        return task;
     }
 
     async create(createTaskDto: CreateTaskDto, userId: number): Promise<TaskEntity> {
@@ -51,7 +50,7 @@ export class TasksService {
 
         if (!updatedTask) throw new NotFoundException('Task not found.');
 
-        return updatedTask
+        return updatedTask;
     }
 
     async delete(taskId: number, userId: number): Promise<MessageResponse> {
