@@ -4,7 +4,7 @@ import type {
     SignInLocalDto,
     SetLocalPasswordDto,
     SignInGoogleDto,
-    UpdatePrimaryEmailDto, ConfirmPasswordResetDto, RequestPasswordResetDto
+    UpdatePrimaryEmailDto, ConfirmPasswordResetDto
 } from './auth.types.js';
 import type {Response} from 'express';
 import {ZodValidationPipe, type ActiveUser} from '../../common/index.js';
@@ -21,7 +21,6 @@ import {SignInGoogleSchema} from "./schemas/sign-in-google.schema.js";
 import {AccessTokenGuard} from "./guards/access-token.guard.js";
 import {SetLocalPasswordSchema} from "./schemas/set-local-password.schema.js";
 import {UpdatePrimaryEmailSchema} from "./schemas/update-primary-email.schema.js";
-import {RequestPasswordResetSchema} from "./schemas/request-password-reset.schema.js";
 import {ConfirmPasswordResetSchema} from "./schemas/confirm-password-reset.schema.js";
 import {PasswordResetService} from "./services/password-reset.service.js";
 
@@ -160,9 +159,7 @@ export class AuthController {
     @UseGuards(AccessTokenGuard)
     @HttpCode(200)
     requestPasswordReset(
-        @CurrentUser() user: ActiveUser,
-        @Body(new ZodValidationPipe(RequestPasswordResetSchema))
-        _body: RequestPasswordResetDto,
+        @CurrentUser() user: ActiveUser
     ) {
         return this.passwordResetService.requestAuthenticatedPasswordReset(user);
     }

@@ -15,6 +15,20 @@ const NotificationEnvSchema = z.object({
     EMAIL_OUTBOX_QUEUE_NAME: z.string().min(1).default(DEFAULT_EMAIL_OUTBOX_QUEUE_NAME),
     EMAIL_OUTBOX_MAX_ATTEMPTS: z.coerce.number().int().positive().default(DEFAULT_EMAIL_OUTBOX_MAX_ATTEMPTS),
     EMAIL_OUTBOX_BACKOFF_MS: z.coerce.number().int().positive().default(DEFAULT_EMAIL_OUTBOX_BACKOFF_MS),
+
+    EMAIL_OUTBOX_CLEANUP_DAYS: z.coerce
+        .number()
+        .int()
+        .positive(),
+    EMAIL_OUTBOX_STUCK_PROCESSING_MINUTES: z.coerce
+        .number()
+        .int()
+        .positive(),
+    EMAIL_OUTBOX_ENQUEUE_FAILED_AFTER_MINUTES: z.coerce
+        .number()
+        .int()
+        .positive(),
+
 });
 
 export const notificationEnvConfig = registerAs('notification', () => {
@@ -30,5 +44,10 @@ export const notificationEnvConfig = registerAs('notification', () => {
         emailOutboxQueueName: env.EMAIL_OUTBOX_QUEUE_NAME,
         emailOutboxMaxAttempts: env.EMAIL_OUTBOX_MAX_ATTEMPTS,
         emailOutboxBackoffMs: env.EMAIL_OUTBOX_BACKOFF_MS,
+
+        emailOutboxCleanupDays: env.EMAIL_OUTBOX_CLEANUP_DAYS,
+        emailOutboxStuckProcessingMinutes: env.EMAIL_OUTBOX_STUCK_PROCESSING_MINUTES,
+        emailOutboxEnqueueFailedAfterMinutes:
+        env.EMAIL_OUTBOX_ENQUEUE_FAILED_AFTER_MINUTES,
     };
 });

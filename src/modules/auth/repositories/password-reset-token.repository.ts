@@ -9,6 +9,28 @@ export class PasswordResetTokenRepository {
     constructor(private readonly database: DatabaseService) {
     }
 
+    async deleteInactiveOlderThan(
+        olderThan: Date,
+        tx?: Prisma.TransactionClient,
+    ): Promise<number> {
+        const client = tx ?? this.database;
+
+        const result = await client.passwordResetToken.deleteMany({
+            where: {
+                OR: [
+                    {usedAt: {not: null,}},
+                    {
+                        revokedAt: {not: null},
+                    },
+                    {expiresAt: {lt: new Date()}},
+                ],
+                createdAt: {lt: olderThan},
+            },
+        });
+
+        return result.count;
+    }
+
     create(
         input: CreatePasswordResetTokenInput,
         tx?: Prisma.TransactionClient,
