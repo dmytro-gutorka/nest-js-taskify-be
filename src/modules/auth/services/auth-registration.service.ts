@@ -1,4 +1,4 @@
-import type { AuthEntity, AuthRegisterPayload } from '../auth.types.js';
+import type { AuthEntity, AuthRegisterInput } from '../auth.types.js';
 import { Injectable } from '@nestjs/common';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { CryptoService } from './crypto.service.js';
@@ -21,7 +21,7 @@ export class AuthRegistrationService {
         userId,
         email,
         name,
-    }: AuthRegisterPayload): Promise<AuthEntity> {
+    }: AuthRegisterInput): Promise<AuthEntity> {
         return this.database.$transaction(async (tx) => {
             let authUserId = userId;
             let hashedPassword: string | null = null;

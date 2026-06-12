@@ -1,14 +1,14 @@
 import { type ConfigType } from '@nestjs/config';
 import { Injectable, Inject } from '@nestjs/common';
 import type { Response } from 'express';
-import { authZodConfig } from '../configs/auth-zod.config.js';
+import { authEnvConfig } from '../configs/auth-env.config.js';
 import { REFRESH_TOKEN_COOKIE_NAME } from '@common/constants';
 
 @Injectable()
 export class CookiesService {
     constructor(
-        @Inject(authZodConfig.KEY)
-        private readonly config: ConfigType<typeof authZodConfig>,
+        @Inject(authEnvConfig.KEY)
+        private readonly config: ConfigType<typeof authEnvConfig>,
     ) {}
 
     setRefreshTokenCookie(res: Response, refreshToken: string): void {

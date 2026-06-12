@@ -1,10 +1,10 @@
 import type {
     SignUpLocalDto,
-    AccessToken,
+    AccessTokenResponse,
     SignInLocalDto,
     SetLocalPasswordDto,
     SignInGoogleDto,
-    UpdatePrimaryEmailDto
+    UpdatePrimaryEmailDto, ConfirmPasswordResetDto, RequestPasswordResetDto
 } from './auth.types.js';
 import type {Response} from 'express';
 import {ZodValidationPipe, type ActiveUser} from '../../common/index.js';
@@ -21,6 +21,9 @@ import {SignInGoogleSchema} from "./schemas/sign-in-google.schema.js";
 import {AccessTokenGuard} from "./guards/access-token.guard.js";
 import {SetLocalPasswordSchema} from "./schemas/set-local-password.schema.js";
 import {UpdatePrimaryEmailSchema} from "./schemas/update-primary-email.schema.js";
+import {RequestPasswordResetSchema} from "./schemas/request-password-reset.schema.js";
+import {ConfirmPasswordResetSchema} from "./schemas/confirm-password-reset.schema.js";
+import {PasswordResetService} from "./services/password-reset.service.js";
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +32,7 @@ export class AuthController {
         private readonly cookiesService: CookiesService,
         private readonly authLocalService: AuthLocalService,
         private readonly authGoogleService: AuthGoogleService,
+        private readonly passwordResetService: PasswordResetService,
     ) {
     }
 
@@ -37,7 +41,7 @@ export class AuthController {
         @Body(new ZodValidationPipe(SignUpLocalSchema))
         body: SignUpLocalDto,
         @Res({passthrough: true}) res: Response,
-    ): Promise<AccessToken> {
+    ): Promise<AccessTokenResponse> {
         const tokens = await this.authLocalService.signUp(body);
 
         this.cookiesService.setRefreshTokenCookie(res, tokens.refreshToken);
@@ -53,7 +57,7 @@ export class AuthController {
         @Body(new ZodValidationPipe(SignInLocalSchema))
         body: SignInLocalDto,
         @Res({passthrough: true}) res: Response,
-    ): Promise<AccessToken> {
+    ): Promise<AccessTokenResponse> {
         const tokens = await this.authLocalService.signIn(body);
 
         this.cookiesService.setRefreshTokenCookie(res, tokens.refreshToken);
@@ -78,7 +82,7 @@ export class AuthController {
     refresh(
         @CurrentUser() user: ActiveUser,
         @Res({passthrough: true}) res: Response,
-    ): AccessToken {
+    ): AccessTokenResponse {
         const tokens = this.authService.refreshToken(user);
 
         this.cookiesService.setRefreshTokenCookie(res, tokens.refreshToken);
@@ -94,7 +98,7 @@ export class AuthController {
         @Body(new ZodValidationPipe(SignInGoogleSchema))
         body: SignInGoogleDto,
         @Res({passthrough: true}) res: Response,
-    ): Promise<AccessToken> {
+    ): Promise<AccessTokenResponse> {
         const tokens = await this.authGoogleService.signIn(body);
 
         this.cookiesService.setRefreshTokenCookie(res, tokens.refreshToken);
@@ -150,5 +154,29 @@ export class AuthController {
         body: UpdatePrimaryEmailDto,
     ) {
         return this.authService.updatePrimaryEmail(user, body);
+    }
+
+    @Post('password-reset/request')
+    @UseGuards(AccessTokenGuard)
+    @HttpCode(200)
+    requestPasswordReset(
+        @CurrentUser() user: ActiveUser,
+        @Body(new ZodValidationPipe(RequestPasswordResetSchema))
+        _body: RequestPasswordResetDto,
+    ) {
+        return this.passwordResetService.requestAuthenticatedPasswordReset(user);
+    }
+
+    @Post('password-reset/confirm')
+    @HttpCode(200)
+    async confirmPasswordReset(
+        @Body(new ZodValidationPipe(ConfirmPasswordResetSchema))
+        body: ConfirmPasswordResetDto,
+    ) {
+        await this.passwordResetService.confirmPasswordReset(body);
+
+        return {
+            message: 'Password has been reset successfully',
+        };
     }
 }

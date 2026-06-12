@@ -3,13 +3,13 @@ import { type ConfigType } from '@nestjs/config';
 import { type ActiveUser, ActiveUserSchema } from '../../../common/index.js';
 import type { TokensPair } from '../auth.types.js';
 import jwt, { type SignOptions } from 'jsonwebtoken';
-import { authZodConfig } from '../configs/auth-zod.config.js';
+import { authEnvConfig } from '../configs/auth-env.config.js';
 
 @Injectable()
 export class AppJwtService {
     constructor(
-        @Inject(authZodConfig.KEY)
-        private readonly config: ConfigType<typeof authZodConfig>,
+        @Inject(authEnvConfig.KEY)
+        private readonly config: ConfigType<typeof authEnvConfig>,
     ) {}
 
     signAccessToken(payload: ActiveUser): string {
