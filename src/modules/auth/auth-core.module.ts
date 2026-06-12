@@ -4,13 +4,13 @@ import {ConfigModule} from "@nestjs/config";
 import {AppJwtService} from "./services/app-jwt.service.js";
 import {AccessTokenGuard} from "./guards/access-token.guard.js";
 import {CookiesService} from "./services/cookies.service.js";
-import {authZodConfig} from './configs/auth-zod.config.js';
+import {authEnvConfig} from './configs/auth-env.config.js';
 import {CryptoService} from "./services/crypto.service.js";
 import {GoogleAuthService} from "./services/google-auth.service.js";
 
 @Module({
     imports: [
-        ConfigModule.forFeature(authZodConfig),
+        ConfigModule.forFeature(authEnvConfig),
     ],
     providers: [
         AppJwtService,

@@ -1,4 +1,4 @@
-import type { CreateAuthDto, AuthEntity } from '../auth.types.js';
+import type { CreateAuthInput, AuthEntity } from '../auth.types.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../../../infrastructure/database/index.js';
 import { Prisma, type AuthProvider } from '@database/client';
@@ -8,7 +8,7 @@ import { SortOrder } from '../../../common/index.js';
 export class AuthRepository {
     constructor(private readonly database: DatabaseService) {}
 
-    create(createAuthDto: CreateAuthDto, tx?: Prisma.TransactionClient): Promise<AuthEntity> {
+    create(createAuthDto: CreateAuthInput, tx?: Prisma.TransactionClient): Promise<AuthEntity> {
         const client = tx ?? this.database;
 
         return client.auth.create({

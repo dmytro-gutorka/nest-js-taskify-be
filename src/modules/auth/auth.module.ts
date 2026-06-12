@@ -7,9 +7,14 @@ import {AuthLocalService} from './services/auth-local.service.js';
 import {AuthRegistrationService} from './services/auth-registration.service.js';
 import {AuthCoreModule} from "./auth-core.module.js";
 import {AuthGoogleService} from "./services/auth-google.service.js";
+import {NotificationModule} from "../notification/notification.module.js";
+import {PasswordResetService} from "./services/password-reset.service.js";
+import {PasswordResetTokenRepository} from "./repositories/password-reset-token.repository.js";
+import {ConfigModule} from "@nestjs/config";
+import {authEnvConfig} from "./configs/auth-env.config.js";
 
 @Module({
-    imports: [UsersModule, AuthCoreModule],
+    imports: [UsersModule, AuthCoreModule, NotificationModule, ConfigModule.forFeature(authEnvConfig),],
     controllers: [AuthController],
     providers: [
         AuthRepository,
@@ -17,6 +22,9 @@ import {AuthGoogleService} from "./services/auth-google.service.js";
         AuthLocalService,
         AuthRegistrationService,
         AuthGoogleService,
+        PasswordResetTokenRepository,
+        PasswordResetService,
+
     ],
 })
 export class AuthModule {

@@ -1,13 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { hash, compare } from 'bcrypt';
-import { authZodConfig } from '../configs/auth-zod.config.js';
+import { authEnvConfig } from '../configs/auth-env.config.js';
 
 @Injectable()
 export class CryptoService {
     constructor(
-        @Inject(authZodConfig.KEY)
-        private readonly config: ConfigType<typeof authZodConfig>,
+        @Inject(authEnvConfig.KEY)
+        private readonly config: ConfigType<typeof authEnvConfig>,
     ) {}
 
     async hash(password: string): Promise<string> {
