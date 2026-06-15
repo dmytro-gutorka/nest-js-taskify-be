@@ -2,13 +2,25 @@
 CREATE TYPE "auth_provider_enum" AS ENUM ('local', 'google');
 
 -- CreateEnum
+CREATE TYPE "media_type_enum" AS ENUM ('image');
+
+-- CreateEnum
+CREATE TYPE "media_storage_provider_enum" AS ENUM ('cloudinary');
+
+-- CreateEnum
 CREATE TYPE "email_outbox_status_enum" AS ENUM ('pending', 'queued', 'processing', 'sent', 'failed', 'exceeded_max_attempts');
 
 -- CreateEnum
-CREATE TYPE "tasks_status_enum" AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
+CREATE TYPE "role_name_enum" AS ENUM ('user', 'admin');
 
 -- CreateEnum
-CREATE TYPE "tasks_priority_enum" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+CREATE TYPE "permission_action_enum" AS ENUM ('create', 'read', 'update', 'delete');
+
+-- CreateEnum
+CREATE TYPE "tasks_status_enum" AS ENUM ('todo', 'in_progress', 'done');
+
+-- CreateEnum
+CREATE TYPE "tasks_priority_enum" AS ENUM ('low', 'medium', 'high');
 
 -- CreateTable
 CREATE TABLE "auth" (
@@ -41,9 +53,9 @@ CREATE TABLE "password_reset_tokens" (
 -- CreateTable
 CREATE TABLE "media" (
     "id" SERIAL NOT NULL,
-    "media_type" VARCHAR(30) NOT NULL,
+    "mediaType" "media_type_enum" NOT NULL,
     "public_url" TEXT NOT NULL,
-    "storage_provider" VARCHAR(50) NOT NULL,
+    "storageProvider" "media_storage_provider_enum" NOT NULL,
     "storage_public_id" VARCHAR(255) NOT NULL,
     "mime_type" VARCHAR(100) NOT NULL,
     "original_name" VARCHAR(255) NOT NULL,
@@ -76,12 +88,56 @@ CREATE TABLE "email_outbox" (
 );
 
 -- CreateTable
+CREATE TABLE "roles" (
+    "id" SERIAL NOT NULL,
+    "name" "role_name_enum" NOT NULL,
+    "description" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "permissions" (
+    "id" SERIAL NOT NULL,
+    "resource" VARCHAR(100) NOT NULL,
+    "action" "permission_action_enum" NOT NULL,
+    "key" VARCHAR(150) NOT NULL,
+    "description" TEXT,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "permissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "users_roles" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "role_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "users_roles_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "roles_permissions" (
+    "id" SERIAL NOT NULL,
+    "role_id" INTEGER NOT NULL,
+    "permission_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "roles_permissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tasks" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "status" "tasks_status_enum" NOT NULL DEFAULT 'TODO',
-    "priority" "tasks_priority_enum" NOT NULL DEFAULT 'MEDIUM',
+    "status" "tasks_status_enum" NOT NULL DEFAULT 'todo',
+    "priority" "tasks_priority_enum" NOT NULL DEFAULT 'medium',
     "deadline" TIMESTAMPTZ,
     "is_private" BOOLEAN NOT NULL DEFAULT false,
     "author_id" INTEGER NOT NULL,
@@ -135,6 +191,18 @@ CREATE UNIQUE INDEX "auth_email_provider_key" ON "auth"("email", "provider");
 CREATE UNIQUE INDEX "password_reset_tokens_token_hash_key" ON "password_reset_tokens"("token_hash");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_key_key" ON "permissions"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_roles_user_id_role_id_key" ON "users_roles"("user_id", "role_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "roles_permissions_role_id_permission_id_key" ON "roles_permissions"("role_id", "permission_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
@@ -157,6 +225,18 @@ ALTER TABLE "password_reset_tokens" ADD CONSTRAINT "password_reset_tokens_auth_i
 
 -- AddForeignKey
 ALTER TABLE "media" ADD CONSTRAINT "media_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "users_roles" ADD CONSTRAINT "users_roles_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "roles_permissions" ADD CONSTRAINT "roles_permissions_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "roles_permissions" ADD CONSTRAINT "roles_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

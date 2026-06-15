@@ -8,6 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ExceptionFilterModule } from './common/exception-filter/exception-filter.module.js';
 import { NotificationModule } from './modules/notification/index.js';
 import { AuthModule } from './modules/auth/index.js';
+import { RbacModule } from './modules/rbac/index.js';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { AuthModule } from './modules/auth/index.js';
         AuthModule,
         UsersModule,
         TasksModule,
+        RbacModule,
     ],
 })
 export class AppModule {}

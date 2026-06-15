@@ -8,9 +8,11 @@ import { authEnvConfig } from './configs/auth-env.config.js';
 import { CryptoService } from './services/crypto.service.js';
 import { GoogleAuthService } from './services/google-auth.service.js';
 import { APP_GUARD } from '@nestjs/core';
+import { RbacModule } from '../rbac/index.js';
+import { PermissionsGuard } from '../rbac/guards/permissions.guard.js';
 
 @Module({
-    imports: [ConfigModule.forFeature(authEnvConfig)],
+    imports: [ConfigModule.forFeature(authEnvConfig), RbacModule],
     providers: [
         AppJwtService,
         CookiesService,
@@ -21,6 +23,10 @@ import { APP_GUARD } from '@nestjs/core';
         {
             provide: APP_GUARD,
             useExisting: AccessTokenGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useExisting: PermissionsGuard,
         },
     ],
     exports: [
