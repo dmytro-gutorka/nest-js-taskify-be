@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../../infrastructure/database/index.js';
 import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
+import { Prisma } from '@database/client'
 
 @Injectable()
 export class RbacService {
@@ -30,7 +31,7 @@ export class RbacService {
         return new Set(allowedUserRoled);
     }
 
-    async assignRoleToUser(userId: number, roleName: RoleName, tx?): Promise<void> {
+    async assignRoleToUser(userId: number, roleName: RoleName, tx?:  Prisma.TransactionClient): Promise<void> {
         const client = tx ?? this.database;
         const role = await client.role.findUniqueOrThrow({ where: { name: roleName } });
 
