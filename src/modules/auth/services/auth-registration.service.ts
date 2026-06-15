@@ -4,6 +4,8 @@ import { AuthRepository } from '../repositories/auth.repository.js';
 import { CryptoService } from './crypto.service.js';
 import { UsersRepository } from '../../users/repositories/users.repository.js';
 import { DatabaseService } from '../../../infrastructure/database/index.js';
+import { RbacService } from '../../rbac/services/rbac.service.js';
+import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
 
 @Injectable()
 export class AuthRegistrationService {
@@ -12,6 +14,7 @@ export class AuthRegistrationService {
         private readonly usersRepository: UsersRepository,
         private readonly cryptoService: CryptoService,
         private readonly authRepository: AuthRepository,
+        private readonly rbacService: RbacService,
     ) {}
 
     async registerUserWithAuth({
@@ -40,7 +43,7 @@ export class AuthRegistrationService {
                 hashedPassword = await this.cryptoService.hash(password);
             }
 
-            return this.authRepository.create(
+            const auth = await this.authRepository.create(
                 {
                     userId: authUserId,
                     email,
@@ -50,6 +53,10 @@ export class AuthRegistrationService {
                 },
                 tx,
             );
+
+            await this.rbacService.assignRoleToUser(authUserId, RoleName.USER, tx);
+
+            return auth;
         });
     }
 }
