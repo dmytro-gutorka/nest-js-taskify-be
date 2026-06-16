@@ -1,6 +1,11 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, RoleName, PermissionAction, PermissionResource } from './generated/client.js';
+import {
+    PrismaClient,
+    RoleName,
+    PermissionAction,
+    PermissionResource,
+} from './generated/client.js';
 import { RbacResourceValue, RbacActionValue } from '../../../modules/rbac/index.js';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL as string });
@@ -26,29 +31,36 @@ const ROLE_PERMISSIONS = {
 } satisfies Record<RoleName, { resource: RbacResourceValue; action: RbacActionValue }[]>;
 
 async function main() {
-    for (const [roleName, permissions] of Object.entries(ROLE_PERMISSIONS)) {
-        const role = await prisma.role.upsert({
-            where: { name: roleName as RoleName},
-            update: {},
-            create: { name: roleName as RoleName, description: `${roleName} role` },
-        });
-
-        for (const { resource, action } of permissions) {
-            const key = `${resource}:${action}`;
-
-            const permission = await prisma.permission.upsert({
-                where: { key },
+    await prisma.$transaction(async (tx) => {
+        for (const [roleName, permissions] of Object.entries(ROLE_PERMISSIONS)) {
+            const role = await tx.role.upsert({
+                where: { name: roleName as RoleName },
                 update: {},
-                create: { resource, action, key },
+                create: { name: roleName as RoleName, description: `${roleName} role` },
             });
 
-            await prisma.rolePermission.upsert({
-                where: { uq_roles_permissions_role_permission: { roleId: role.id, permissionId: permission.id } },
-                update: {},
-                create: { roleId: role.id, permissionId: permission.id },
-            });
+            for (const { resource, action } of permissions) {
+                const key = `${resource}:${action}`;
+
+                const permission = await tx.permission.upsert({
+                    where: { key },
+                    update: {},
+                    create: { resource, action, key },
+                });
+
+                await tx.rolePermission.upsert({
+                    where: {
+                        uq_roles_permissions_role_permission: {
+                            roleId: role.id,
+                            permissionId: permission.id,
+                        },
+                    },
+                    update: {},
+                    create: { roleId: role.id, permissionId: permission.id },
+                });
+            }
         }
-    }
+    });
 
     console.log('Seed completed');
 }
