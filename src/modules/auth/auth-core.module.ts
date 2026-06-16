@@ -1,17 +1,16 @@
-import {RefreshTokenGuard} from "./guards/refresh-token.guard.js";
-import {Module} from "@nestjs/common";
-import {ConfigModule} from "@nestjs/config";
-import {AppJwtService} from "./services/app-jwt.service.js";
-import {AccessTokenGuard} from "./guards/access-token.guard.js";
-import {CookiesService} from "./services/cookies.service.js";
-import {authEnvConfig} from './configs/auth-env.config.js';
-import {CryptoService} from "./services/crypto.service.js";
-import {GoogleAuthService} from "./services/google-auth.service.js";
+import { RefreshTokenGuard } from './guards/refresh-token.guard.js';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppJwtService } from './services/app-jwt.service.js';
+import { AccessTokenGuard } from './guards/access-token.guard.js';
+import { CookiesService } from './services/cookies.service.js';
+import { authEnvConfig } from './configs/auth-env.config.js';
+import { CryptoService } from './services/crypto.service.js';
+import { GoogleAuthService } from './services/google-auth.service.js';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-    imports: [
-        ConfigModule.forFeature(authEnvConfig),
-    ],
+    imports: [ConfigModule.forFeature(authEnvConfig)],
     providers: [
         AppJwtService,
         CookiesService,
@@ -19,6 +18,10 @@ import {GoogleAuthService} from "./services/google-auth.service.js";
         RefreshTokenGuard,
         CryptoService,
         GoogleAuthService,
+        {
+            provide: APP_GUARD,
+            useExisting: AccessTokenGuard,
+        },
     ],
     exports: [
         AppJwtService,
@@ -29,5 +32,4 @@ import {GoogleAuthService} from "./services/google-auth.service.js";
         GoogleAuthService,
     ],
 })
-export class AuthCoreModule {
-}
+export class AuthCoreModule {}

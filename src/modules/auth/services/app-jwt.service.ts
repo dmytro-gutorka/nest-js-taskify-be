@@ -1,9 +1,10 @@
 import { UnauthorizedException, Injectable, Inject } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
-import { type ActiveUser, ActiveUserSchema } from '../../../common/index.js';
 import type { TokensPair } from '../auth.types.js';
 import jwt, { type SignOptions } from 'jsonwebtoken';
 import { authEnvConfig } from '../configs/auth-env.config.js';
+import { ActiveUserSchema } from '../schemas/active-user.schema.js';
+import { ActiveUser } from '../../../common/types/common.types.js';
 
 @Injectable()
 export class AppJwtService {

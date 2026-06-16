@@ -6,15 +6,11 @@ export const milliseconds = {
 };
 
 export const dateBeforeNow = {
-    seconds: (seconds: number): Date =>
-        new Date(Date.now() - milliseconds.seconds(seconds)),
+    seconds: (seconds: number): Date => new Date(Date.now() - milliseconds.seconds(seconds)),
 
-    minutes: (minutes: number): Date =>
-        new Date(Date.now() - milliseconds.minutes(minutes)),
+    minutes: (minutes: number): Date => new Date(Date.now() - milliseconds.minutes(minutes)),
 
-    hours: (hours: number): Date =>
-        new Date(Date.now() - milliseconds.hours(hours)),
+    hours: (hours: number): Date => new Date(Date.now() - milliseconds.hours(hours)),
 
-    days: (days: number): Date =>
-        new Date(Date.now() - milliseconds.days(days)),
+    days: (days: number): Date => new Date(Date.now() - milliseconds.days(days)),
 };

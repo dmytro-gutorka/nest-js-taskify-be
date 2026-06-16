@@ -2,7 +2,7 @@ import { type ConfigType } from '@nestjs/config';
 import { Injectable, Inject } from '@nestjs/common';
 import type { Response } from 'express';
 import { authEnvConfig } from '../configs/auth-env.config.js';
-import { REFRESH_TOKEN_COOKIE_NAME } from '@common/constants';
+import { REFRESH_TOKEN_COOKIE_NAME } from '../../../common/constants/http-metadata.constants.js';
 
 @Injectable()
 export class CookiesService {

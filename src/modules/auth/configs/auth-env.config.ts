@@ -1,5 +1,5 @@
-import {registerAs} from '@nestjs/config';
-import {z} from 'zod';
+import { registerAs } from '@nestjs/config';
+import { z } from 'zod';
 
 const DEFAULT_ACCESS_TOKEN_TTL = 15 * 60;
 const DEFAULT_REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60;
@@ -24,18 +24,18 @@ const AuthEnvSchema = z.object({
 
     APP_FRONTEND_URL: z.string('APP_FRONTEND_URL must be valid url'),
 
-    RESET_PASSWORD_TOKEN_BYTES: z.coerce.number().int().positive().default(DEFAULT_RESET_PASSWORD_TOKEN_BYTES),
+    RESET_PASSWORD_TOKEN_BYTES: z.coerce
+        .number()
+        .int()
+        .positive()
+        .default(DEFAULT_RESET_PASSWORD_TOKEN_BYTES),
     RESET_PASSWORD_TOKEN_TTL_MS: z.coerce
         .number()
         .int()
         .positive()
         .default(DEFAULT_RESET_PASSWORD_TOKEN_TTL_MS),
 
-    PASSWORD_RESET_TOKEN_CLEANUP_DAYS: z.coerce
-        .number()
-        .int()
-        .positive()
-
+    PASSWORD_RESET_TOKEN_CLEANUP_DAYS: z.coerce.number().int().positive(),
 });
 
 export const authEnvConfig = registerAs('auth', () => {

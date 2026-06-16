@@ -1,91 +1,65 @@
-import {Controller, Delete, Get, HttpCode, Patch, Post, UseGuards} from '@nestjs/common';
-import {CursorPaginationSchema, ParamsIdSchema, type ParamId} from '@common/schemas';
-import {ZodQuery, ZodParam, ZodBody} from '@common/decorators';
-import type {
-    TaskFindAllQuery,
-    TaskCursorQuery,
-    CreateTaskDto,
-    UpdateTaskDto, TaskEntity,
-} from './task.types.js';
-import {TasksService} from './services/tasks.service.js';
-import {TaskQuerySchema} from './schemas/task-query.schema.js';
-import {CreateTaskSchema} from './schemas/create-task.schema.js';
-import {UpdateTaskSchema} from './schemas/update-task.schema.js';
-import type {ActiveUser} from '../../common/index.js';
-import {CurrentUser} from '../auth/decorators/current-user.decorator.js';
-import {AccessTokenGuard} from "../auth/guards/access-token.guard.js";
-import {mapToTaskResponse} from "./mappers/task-response.mapper.js";
-
+import { Controller, Delete, Get, HttpCode, Patch, Post, Query, Body, Param } from '@nestjs/common';
+import type { TaskEntity } from './tasks.types.js';
+import { TasksService } from './services/tasks.service.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { mapToTaskResponse } from './mappers/task-response.mapper.js';
+import { type ActiveUser } from '../../common/types/common.types.js';
+import { TaskQueryDto } from './dto/task-query.dto.js';
+import { CursorPaginationQueryDto } from '../../common/dto/cursor-pagination-query.dto.js';
+import { ParamsIdDto } from '../../common/dto/params-id.dto.js';
+import { CreateTaskDto } from './dto/create-task.dto.js';
+import { UpdateTaskDto } from './dto/update-task.dto.js';
 
 @Controller('tasks')
-@UseGuards(AccessTokenGuard)
 export class TasksController {
-    constructor(private readonly tasksService: TasksService) {
-    }
+    constructor(private readonly tasksService: TasksService) {}
 
     @Get()
-    async findAll(@CurrentUser() user: ActiveUser, @ZodQuery(TaskQuerySchema) query: TaskFindAllQuery) {
+    async findAll(@CurrentUser() user: ActiveUser, @Query() query: TaskQueryDto) {
         const paginatedTasks = await this.tasksService.findAll(user.id, query);
-        const mappedTasks = paginatedTasks.items.map((task: TaskEntity) => mapToTaskResponse(task))
+        const mappedTasks = paginatedTasks.items.map((task: TaskEntity) => mapToTaskResponse(task));
 
         return {
             ...paginatedTasks,
             items: mappedTasks,
-        }
+        };
     }
 
     @Get('feed')
-    async findFeed(
-        @CurrentUser() user: ActiveUser,
-        @ZodQuery(CursorPaginationSchema)
-        query: TaskCursorQuery,
-    ) {
+    async findFeed(@CurrentUser() user: ActiveUser, @Query() query: CursorPaginationQueryDto) {
         const cursorPaginatedTasks = await this.tasksService.findFeed(user.id, query);
-        const mappedTasks = cursorPaginatedTasks.items.map((task: TaskEntity) => mapToTaskResponse(task))
+        const mappedTasks = cursorPaginatedTasks.items.map((task: TaskEntity) =>
+            mapToTaskResponse(task),
+        );
 
         return {
             ...cursorPaginatedTasks,
             items: mappedTasks,
-        }
+        };
     }
 
     @Get(':id')
-    async findOne(
-        @CurrentUser() user: ActiveUser,
-        @ZodParam(ParamsIdSchema)
-        params: ParamId,
-    ) {
-        return mapToTaskResponse(await this.tasksService.findOne(params.id, user.id))
+    async findOne(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
+        return mapToTaskResponse(await this.tasksService.findOne(params.id, user.id));
     }
 
     @Post()
-    async create(
-        @CurrentUser() user: ActiveUser,
-        @ZodBody(CreateTaskSchema)
-        body: CreateTaskDto,
-    ) {
-        return mapToTaskResponse(await this.tasksService.create(body, user.id))
+    async create(@CurrentUser() user: ActiveUser, @Body() body: CreateTaskDto) {
+        return mapToTaskResponse(await this.tasksService.create(body, user.id));
     }
 
     @Patch(':id')
     async update(
         @CurrentUser() user: ActiveUser,
-        @ZodBody(UpdateTaskSchema)
-        body: UpdateTaskDto,
-        @ZodParam(ParamsIdSchema)
-        params: ParamId,
+        @Param() params: ParamsIdDto,
+        @Body() body: UpdateTaskDto,
     ) {
-        console.log(params.id, user.id)
-        return mapToTaskResponse(await this.tasksService.update(params.id, user.id, body))
+        return mapToTaskResponse(await this.tasksService.update(params.id, user.id, body));
     }
 
     @Delete(':id')
     @HttpCode(200)
-    delete(
-        @CurrentUser() user: ActiveUser,
-        @ZodParam(ParamsIdSchema)
-        params: ParamId,
-    ) {
-        return this.tasksService.delete(params.id, user.id)
+    delete(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
+        return this.tasksService.delete(params.id, user.id);
     }
 }

@@ -1,5 +1,5 @@
-import {TaskResponse, TaskEntity} from "../task.types.js";
-import {TaskStatusApiMap, TaskPriorityApiMap} from "../tasks.constants.js";
+import { TaskResponse, TaskEntity } from '../tasks.types.js';
+import { TaskStatusApiMap, TaskPriorityApiMap } from '../tasks.constants.js';
 
 export function mapToTaskResponse(task: TaskEntity): TaskResponse {
     return {

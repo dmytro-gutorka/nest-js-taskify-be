@@ -6,14 +6,14 @@ import { PrismaClientExceptionHandler } from './handlers/prisma-client-exception
 import { UnknownExceptionHandler } from './handlers/unknown-exception.handler.js';
 
 @Module({
-  providers: [
-    HttpExceptionHandler,
-    UnknownExceptionHandler,
-    PrismaClientExceptionHandler,
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
-  ],
+    providers: [
+        HttpExceptionHandler,
+        UnknownExceptionHandler,
+        PrismaClientExceptionHandler,
+        {
+            provide: APP_FILTER,
+            useClass: AllExceptionsFilter,
+        },
+    ],
 })
 export class ExceptionFilterModule {}

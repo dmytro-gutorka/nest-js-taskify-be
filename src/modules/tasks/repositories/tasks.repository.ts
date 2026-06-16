@@ -1,17 +1,17 @@
 import { DatabaseService } from '@database';
 import { Injectable } from '@nestjs/common';
-import { SortOrder } from '@common/enums';
 import { Prisma } from '@database/client';
 import type {
-    TaskFindAllQuery,
     TaskPagePaginatedResponse,
-    TaskCursorQuery,
     TaskCursorPaginatedResponse,
-    CreateTaskDto,
-    UpdateTaskDto,
     TaskEntity,
-} from '../task.types.js';
+} from '../tasks.types.js';
 import { buildTaskSearchWhere } from '../utils/buildTaskSearchWhere.js';
+import { TaskQueryDto } from '../dto/task-query.dto.js';
+import { SortOrder } from '../../../common/enums/sort-order.enum.js';
+import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
+import { CreateTaskDto } from '../dto/create-task.dto.js';
+import { UpdateTaskDto } from '../dto/update-task.dto.js';
 
 @Injectable()
 export class TasksRepository {
@@ -19,7 +19,7 @@ export class TasksRepository {
 
     async findAll(
         authorId: number,
-        query: TaskFindAllQuery,
+        query: TaskQueryDto,
     ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
         const {
             search,
@@ -62,7 +62,7 @@ export class TasksRepository {
 
     async findFeed(
         authorId: number,
-        query: TaskCursorQuery,
+        query: CursorPaginationQueryDto,
     ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
         const { cursor, limit = 10 } = query;
 

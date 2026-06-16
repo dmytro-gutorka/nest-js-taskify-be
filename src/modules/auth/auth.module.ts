@@ -1,20 +1,25 @@
-import {Module} from '@nestjs/common';
-import {UsersModule} from '../users/index.js';
-import {AuthController} from './auth.controller.js';
-import {AuthRepository} from './repositories/auth.repository.js';
-import {AuthService} from './services/auth.service.js';
-import {AuthLocalService} from './services/auth-local.service.js';
-import {AuthRegistrationService} from './services/auth-registration.service.js';
-import {AuthCoreModule} from "./auth-core.module.js";
-import {AuthGoogleService} from "./services/auth-google.service.js";
-import {NotificationModule} from "../notification/notification.module.js";
-import {PasswordResetService} from "./services/password-reset.service.js";
-import {PasswordResetTokenRepository} from "./repositories/password-reset-token.repository.js";
-import {ConfigModule} from "@nestjs/config";
-import {authEnvConfig} from "./configs/auth-env.config.js";
+import { Module } from '@nestjs/common';
+import { UsersModule } from '../users/index.js';
+import { AuthController } from './auth.controller.js';
+import { AuthRepository } from './repositories/auth.repository.js';
+import { AuthService } from './services/auth.service.js';
+import { AuthLocalService } from './services/auth-local.service.js';
+import { AuthRegistrationService } from './services/auth-registration.service.js';
+import { AuthCoreModule } from './auth-core.module.js';
+import { AuthGoogleService } from './services/auth-google.service.js';
+import { PasswordResetService } from './services/password-reset.service.js';
+import { PasswordResetTokenRepository } from './repositories/password-reset-token.repository.js';
+import { ConfigModule } from '@nestjs/config';
+import { authEnvConfig } from './configs/auth-env.config.js';
+import { NotificationModule } from '../notification/index.js';
 
 @Module({
-    imports: [UsersModule, AuthCoreModule, NotificationModule, ConfigModule.forFeature(authEnvConfig),],
+    imports: [
+        UsersModule,
+        AuthCoreModule,
+        NotificationModule,
+        ConfigModule.forFeature(authEnvConfig),
+    ],
     controllers: [AuthController],
     providers: [
         AuthRepository,
@@ -24,8 +29,6 @@ import {authEnvConfig} from "./configs/auth-env.config.js";
         AuthGoogleService,
         PasswordResetTokenRepository,
         PasswordResetService,
-
     ],
 })
-export class AuthModule {
-}
+export class AuthModule {}

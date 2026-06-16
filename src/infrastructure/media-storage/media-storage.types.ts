@@ -1,6 +1,6 @@
 import type { MediaStorageProvider } from '../database/prisma/generated/enums.js';
-import type { ValueOf } from '../../common/index.js';
 import { MediaStorageResources } from './media-storage.constants.js';
+import { ValueOf } from '../../common/types/common.types.js';
 
 export type MediaStorageResourceType = ValueOf<typeof MediaStorageResources>;
 
@@ -27,7 +27,6 @@ export interface UploadMediaResult {
     storagePublicId: string;
     storageProvider: MediaStorageProvider;
 }
-
 
 export abstract class MediaStorageService {
     abstract upload(input: UploadMediaInput): Promise<UploadMediaResult>;
