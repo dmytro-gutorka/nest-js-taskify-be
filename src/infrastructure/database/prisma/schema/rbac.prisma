@@ -1,0 +1,82 @@
+enum RoleName {
+  USER  @map("user")
+  ADMIN @map("admin")
+  GUEST @map("guest")
+
+  @@map("role_name_enum")
+}
+
+enum PermissionAction {
+  CREATE @map("create")
+  READ   @map("read")
+  UPDATE @map("update")
+  DELETE @map("delete")
+
+  @@map("permission_action_enum")
+}
+
+enum PermissionResource {
+  TASKS @map("tasks")
+  USERS @map("users")
+
+  @@map("permission_resource_enum")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        RoleName @unique
+  description String   @db.Text
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int              @id @default(autoincrement())
+  resource    PermissionResource
+  action      PermissionAction
+  key         String           @unique @db.VarChar(150)
+  description String?          @db.Text
+
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id Int @id @default(autoincrement())
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  roleId Int  @map("role_id")
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([userId, roleId], name: "uq_users_roles_user_role")
+  @@map("users_roles")
+}
+
+model RolePermission {
+  id Int @id @default(autoincrement())
+
+  roleId Int  @map("role_id")
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  permissionId Int        @map("permission_id")
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([roleId, permissionId], name: "uq_roles_permissions_role_permission")
+  @@map("roles_permissions")
+}

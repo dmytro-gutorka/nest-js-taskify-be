@@ -12,12 +12,14 @@ import { PasswordResetTokenRepository } from './repositories/password-reset-toke
 import { ConfigModule } from '@nestjs/config';
 import { authEnvConfig } from './configs/auth-env.config.js';
 import { NotificationModule } from '../notification/index.js';
+import { RbacModule } from '../rbac/index.js';
 
 @Module({
     imports: [
         UsersModule,
         AuthCoreModule,
         NotificationModule,
+        RbacModule,
         ConfigModule.forFeature(authEnvConfig),
     ],
     controllers: [AuthController],

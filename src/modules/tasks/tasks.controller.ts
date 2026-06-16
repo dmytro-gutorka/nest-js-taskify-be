@@ -9,12 +9,14 @@ import { CursorPaginationQueryDto } from '../../common/dto/cursor-pagination-que
 import { ParamsIdDto } from '../../common/dto/params-id.dto.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
+import { RequiredPermissions } from '../rbac/index.js';
 
 @Controller('tasks')
 export class TasksController {
     constructor(private readonly tasksService: TasksService) {}
 
     @Get()
+    @RequiredPermissions('TASKS:READ')
     async findAll(@CurrentUser() user: ActiveUser, @Query() query: TaskQueryDto) {
         const paginatedTasks = await this.tasksService.findAll(user.id, query);
         const mappedTasks = paginatedTasks.items.map((task: TaskEntity) => mapToTaskResponse(task));
@@ -26,6 +28,7 @@ export class TasksController {
     }
 
     @Get('feed')
+    @RequiredPermissions('TASKS:READ')
     async findFeed(@CurrentUser() user: ActiveUser, @Query() query: CursorPaginationQueryDto) {
         const cursorPaginatedTasks = await this.tasksService.findFeed(user.id, query);
         const mappedTasks = cursorPaginatedTasks.items.map((task: TaskEntity) =>
@@ -39,16 +42,19 @@ export class TasksController {
     }
 
     @Get(':id')
+    @RequiredPermissions('TASKS:READ')
     async findOne(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
         return mapToTaskResponse(await this.tasksService.findOne(params.id, user.id));
     }
 
     @Post()
+    @RequiredPermissions('TASKS:CREATE')
     async create(@CurrentUser() user: ActiveUser, @Body() body: CreateTaskDto) {
         return mapToTaskResponse(await this.tasksService.create(body, user.id));
     }
 
     @Patch(':id')
+    @RequiredPermissions('TASKS:UPDATE')
     async update(
         @CurrentUser() user: ActiveUser,
         @Param() params: ParamsIdDto,
@@ -59,6 +65,7 @@ export class TasksController {
 
     @Delete(':id')
     @HttpCode(200)
+    @RequiredPermissions('TASKS:DELETE')
     delete(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
         return this.tasksService.delete(params.id, user.id);
     }

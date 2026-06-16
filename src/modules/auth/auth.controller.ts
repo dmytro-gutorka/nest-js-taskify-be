@@ -16,6 +16,7 @@ import { SetLocalPasswordDto } from './dto/set-local-password.dto.js';
 import { UpdatePrimaryEmailDto } from './dto/update-primary-email.dto.js';
 import { ConfirmPasswordResetDto } from './dto/confirm-password-reset.dto.js';
 import { SkipAccessToken } from '../../common/decorators/skip-access-token.decorator.js';
+import { SkipPermissions } from '../rbac/index.js';
 
 @Controller('auth')
 export class AuthController {
@@ -102,6 +103,7 @@ export class AuthController {
 
     @Post('google/link')
     @HttpCode(200)
+    @SkipPermissions()
     async linkGoogle(@CurrentUser() user: ActiveUser, @Body() body: SignInGoogleDto) {
         await this.authGoogleService.link(user, body);
 
@@ -112,6 +114,7 @@ export class AuthController {
 
     @Post('local/set-password')
     @HttpCode(200)
+    @SkipPermissions()
     async setLocalPassword(@CurrentUser() user: ActiveUser, @Body() body: SetLocalPasswordDto) {
         await this.authLocalService.setPassword(user, body);
 
@@ -121,17 +124,20 @@ export class AuthController {
     }
 
     @Get('primary-email-options')
+    @SkipPermissions()
     getPrimaryEmailOptions(@CurrentUser() user: ActiveUser) {
         return this.authService.getPrimaryEmailOptions(user);
     }
 
     @Patch('primary-email')
+    @SkipPermissions()
     updatePrimaryEmail(@CurrentUser() user: ActiveUser, @Body() body: UpdatePrimaryEmailDto) {
         return this.authService.updatePrimaryEmail(user, body);
     }
 
     @Post('password-reset/request')
     @HttpCode(200)
+    @SkipPermissions()
     requestPasswordReset(@CurrentUser() user: ActiveUser) {
         return this.passwordResetService.requestAuthenticatedPasswordReset(user);
     }

@@ -7,7 +7,7 @@ enum MediaType {
 enum MediaStorageProvider {
   CLOUDINARY @map("cloudinary")
 
-  @@map("media_storage_procider_enum")
+  @@map("media_storage_provider_enum")
 }
 
 model Media {
