@@ -9,6 +9,7 @@ import { ExceptionFilterModule } from './common/exception-filter/exception-filte
 import { NotificationModule } from './modules/notification/index.js';
 import { AuthModule } from './modules/auth/index.js';
 import { RbacModule } from './modules/rbac/index.js';
+import { CacheModule } from './infrastructure/cache/index.js';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { RbacModule } from './modules/rbac/index.js';
             }),
         }),
         DatabaseModule,
+        CacheModule,
         ExceptionFilterModule,
         NotificationModule,
         AuthModule,
