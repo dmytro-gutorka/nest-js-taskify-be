@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
+import { TasksCacheService } from './tasks-cache.service.js';
 import type {
     TaskPagePaginatedResponse,
     TaskCursorPaginatedResponse,
@@ -13,24 +14,27 @@ import { MessageResponse } from '../../../common/types/responses.types.js';
 
 @Injectable()
 export class TasksService {
-    constructor(private readonly tasksRepository: TasksRepository) {}
+    constructor(
+        private readonly tasksRepository: TasksRepository,
+        private readonly tasksCacheService: TasksCacheService,
+    ) {}
 
     async findAll(
         userId: number,
         query: TaskQueryDto,
     ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
-        return await this.tasksRepository.findAll(userId, query);
+        return this.tasksCacheService.findAll(userId, query);
     }
 
     async findFeed(
         userId: number,
         query: CursorPaginationQueryDto,
     ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
-        return await this.tasksRepository.findFeed(userId, query);
+        return this.tasksCacheService.findFeed(userId, query);
     }
 
     async findOne(taskId: number, userId: number): Promise<TaskEntity> {
-        const task = await this.tasksRepository.findOne(taskId, userId);
+        const task = await this.tasksCacheService.findOne(taskId, userId);
 
         if (!task) throw new NotFoundException('Task not found.');
 
@@ -38,7 +42,11 @@ export class TasksService {
     }
 
     async create(createTaskDto: CreateTaskDto, userId: number): Promise<TaskEntity> {
-        return await this.tasksRepository.create(createTaskDto, userId);
+        const task = await this.tasksRepository.create(createTaskDto, userId);
+
+        await this.tasksCacheService.invalidateListsOnly(userId);
+
+        return task;
     }
 
     async update(
@@ -50,6 +58,8 @@ export class TasksService {
 
         if (!updatedTask) throw new NotFoundException('Task not found.');
 
+        await this.tasksCacheService.invalidateAfterWrite(taskId, userId);
+
         return updatedTask;
     }
 
@@ -58,8 +68,8 @@ export class TasksService {
 
         if (!isDeleted) throw new NotFoundException('Task not found.');
 
-        return {
-            message: 'Task deleted successfully',
-        };
+        await this.tasksCacheService.invalidateAfterWrite(taskId, userId);
+
+        return { message: 'Task deleted successfully' };
     }
 }
