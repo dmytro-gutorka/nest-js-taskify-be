@@ -19,14 +19,6 @@ export interface TaskResponse {
     updatedAt: Date;
 }
 
-export interface TaskPagePaginatedResponse<T> {
-    items: T[];
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-}
-
 export interface TaskCursorPaginatedResponse<T> {
     items: T[];
     nextCursor: number | null;

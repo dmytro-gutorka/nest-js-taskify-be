@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TasksRepository } from '../repositories/tasks.repository.js';
-import type {
-    TaskPagePaginatedResponse,
-    TaskCursorPaginatedResponse,
-    TaskEntity,
-} from '../tasks.types.js';
+import type { TaskCursorPaginatedResponse, TaskEntity } from '../tasks.types.js';
 import { TaskQueryDto } from '../dto/task-query.dto.js';
 import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
 import { CacheService, CacheKeyFactory } from '../../../infrastructure/cache/index.js';
 import type { CacheConfig } from '../../../infrastructure/cache/index.js';
+import { PagePaginatedResponse } from '../../../common/types/common.types.js';
 
 function reviveTaskDates(task: TaskEntity): TaskEntity {
     return {
@@ -39,13 +36,10 @@ export class TasksCacheService {
         this.listTtl = config.taskListTtl;
     }
 
-    async findAll(
-        userId: number,
-        query: TaskQueryDto,
-    ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
+    async findAll(userId: number, query: TaskQueryDto): Promise<PagePaginatedResponse<TaskEntity>> {
         const cacheKey = CacheKeyFactory.taskList(userId, query);
 
-        const cached = await this.cacheService.get<TaskPagePaginatedResponse<TaskEntity>>(cacheKey);
+        const cached = await this.cacheService.get<PagePaginatedResponse<TaskEntity>>(cacheKey);
         if (cached) return reviveTasks(cached);
 
         const result = await this.tasksRepository.findAll(userId, query);

@@ -28,7 +28,7 @@ const CacheEnvSchema = z.object({
     SCAN_BATCH_SIZE: z.coerce.number().int().positive().default(SCAN_BATCH_SIZE),
 });
 
-export const cacheConfig = registerAs('cache', () => {
+export const cacheEnvConfig = registerAs('cache', () => {
     const env = CacheEnvSchema.parse(process.env);
 
     return {
@@ -41,4 +41,4 @@ export const cacheConfig = registerAs('cache', () => {
     };
 });
 
-export type CacheConfig = ReturnType<typeof cacheConfig>;
+export type CacheConfig = ReturnType<typeof cacheEnvConfig>;

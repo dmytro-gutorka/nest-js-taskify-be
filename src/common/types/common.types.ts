@@ -8,3 +8,11 @@ export interface ActiveUser {
     email: string;
     provider: AuthProvider;
 }
+
+export interface PagePaginatedResponse<T> {
+    items: T[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}

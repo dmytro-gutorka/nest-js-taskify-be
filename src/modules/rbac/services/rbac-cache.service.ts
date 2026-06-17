@@ -1,22 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Inject } from '@nestjs/common';
+import { type ConfigType } from '@nestjs/config';
 import { Prisma } from '@database/client';
 import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
 import { RbacRepository } from '../repositories/rbac.repository.js';
-import { CacheService, CacheKeyFactory } from '../../../infrastructure/cache/index.js';
-import type { CacheConfig } from '../../../infrastructure/cache/index.js';
+import {
+    CacheService,
+    CacheKeyFactory,
+    cacheEnvConfig,
+} from '../../../infrastructure/cache/index.js';
 
 @Injectable()
 export class RbacCacheService {
-    private readonly ttl: number;
-
     constructor(
         private readonly rbacRepository: RbacRepository,
         private readonly cacheService: CacheService,
-        private readonly configService: ConfigService,
-    ) {
-        this.ttl = this.configService.getOrThrow<CacheConfig>('cache').rbacPermissionsTtl;
-    }
+
+        @Inject(cacheEnvConfig.KEY)
+        private readonly cacheConfig: ConfigType<typeof cacheEnvConfig>,
+    ) {}
 
     async getUserPermissionKeys(userId: number): Promise<Set<string>> {
         const cacheKey = CacheKeyFactory.rbacUserPermissions(userId);
@@ -30,9 +31,13 @@ export class RbacCacheService {
             userRole.role.rolePermissions.map((rp) => rp.permission.key),
         );
 
-        await this.cacheService.set(cacheKey, keys, this.ttl);
+        await this.cacheService.set(cacheKey, keys, this.cacheConfig.rbacPermissionsTtl);
 
         return new Set(keys);
+    }
+
+    async invalidateUserPermissions(userId: number): Promise<void> {
+        await this.cacheService.del(CacheKeyFactory.rbacUserPermissions(userId));
     }
 
     async assignRoleToUser(
