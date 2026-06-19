@@ -27,6 +27,14 @@ export class RbacRepository {
         return client.role.findUniqueOrThrow({ where: { name: roleName } });
     }
 
+    async getUserRoleNames(userId: number): Promise<Set<RoleName>> {
+        const userRoles = await this.database.userRole.findMany({
+            where: { userId },
+            include: { role: true },
+        });
+        return new Set(userRoles.map((ur) => ur.role.name));
+    }
+
     async assignRoleToUser(userId: number, roleId: number, tx?: Prisma.TransactionClient) {
         const client = tx ?? this.database;
         return client.userRole.upsert({

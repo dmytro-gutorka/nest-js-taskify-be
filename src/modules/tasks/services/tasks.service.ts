@@ -1,16 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
 import { TasksCacheService } from './tasks-cache.service.js';
-import type {
-    TaskPagePaginatedResponse,
-    TaskCursorPaginatedResponse,
-    TaskEntity,
-} from '../tasks.types.js';
+import type { TaskCursorPaginatedResponse, TaskEntity } from '../tasks.types.js';
 import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
 import { TaskQueryDto } from '../dto/task-query.dto.js';
 import { CreateTaskDto } from '../dto/create-task.dto.js';
 import { UpdateTaskDto } from '../dto/update-task.dto.js';
 import { MessageResponse } from '../../../common/types/responses.types.js';
+import { PagePaginatedResponse } from '../../../common/types/common.types.js';
 
 @Injectable()
 export class TasksService {
@@ -19,10 +16,7 @@ export class TasksService {
         private readonly tasksCacheService: TasksCacheService,
     ) {}
 
-    async findAll(
-        userId: number,
-        query: TaskQueryDto,
-    ): Promise<TaskPagePaginatedResponse<TaskEntity>> {
+    async findAll(userId: number, query: TaskQueryDto): Promise<PagePaginatedResponse<TaskEntity>> {
         return this.tasksCacheService.findAll(userId, query);
     }
 

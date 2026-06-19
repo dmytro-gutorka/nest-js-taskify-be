@@ -20,6 +20,6 @@ import { RbacRepository } from './repositories/rbac.repository.js';
             useExisting: PermissionsGuard,
         },
     ],
-    exports: [RbacService, PermissionsGuard],
+    exports: [RbacService, RbacCacheService, PermissionsGuard],
 })
 export class RbacModule {}
