@@ -1,53 +1,68 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
-import { Prisma } from '@database/client';
+
 import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
-import { RbacRepository } from '../repositories/rbac.repository.js';
-import {
-    CacheService,
-    CacheKeyFactory,
-    cacheEnvConfig,
-} from '../../../infrastructure/cache/index.js';
+import { CacheService } from '../../../infrastructure/cache/index.js';
+import { PermissionKey } from '../rbac.types.js';
+import { RbacCacheKeys } from '../cache/rbac-cache-keys.js';
+import { rbacCacheConfig } from '../configs/rbac-cache.config.js';
 
 @Injectable()
 export class RbacCacheService {
     constructor(
-        private readonly rbacRepository: RbacRepository,
+        @Inject(rbacCacheConfig.KEY)
+        private readonly rbacConfig: ConfigType<typeof rbacCacheConfig>,
         private readonly cacheService: CacheService,
-
-        @Inject(cacheEnvConfig.KEY)
-        private readonly cacheConfig: ConfigType<typeof cacheEnvConfig>,
     ) {}
 
-    async getUserPermissionKeys(userId: number): Promise<Set<string>> {
-        const cacheKey = CacheKeyFactory.rbacUserPermissions(userId);
+    async getUserPermissionKeys(userId: number): Promise<PermissionKey[] | null> {
+        const cacheKey = RbacCacheKeys.userPermissions(userId);
 
-        const cached = await this.cacheService.get<string[]>(cacheKey);
-        if (cached) return new Set(cached);
+        const cached = await this.cacheService.get<PermissionKey[]>(cacheKey);
 
-        const userRoles = await this.rbacRepository.getUserRolesWithPermissions(userId);
+        if (!cached) return null;
 
-        const keys = userRoles.flatMap((userRole) =>
-            userRole.role.rolePermissions.map((rp) => rp.permission.key),
+        return [...new Set(cached)];
+    }
+
+    async setUserPermissionKeys(userId: number, permissionKeys: PermissionKey[]): Promise<void> {
+        const cacheKey = RbacCacheKeys.userPermissions(userId);
+
+        await this.cacheService.set(
+            cacheKey,
+            [...new Set(permissionKeys)],
+            this.rbacConfig.userAccessTtl,
         );
+    }
 
-        await this.cacheService.set(cacheKey, keys, this.cacheConfig.rbacPermissionsTtl);
+    async getUserRoleNames(userId: number): Promise<RoleName[] | null> {
+        const cacheKey = RbacCacheKeys.userRoles(userId);
 
-        return new Set(keys);
+        const cached = await this.cacheService.get<RoleName[]>(cacheKey);
+
+        if (!cached) return null;
+
+        return [...new Set(cached)];
+    }
+
+    async setUserRoleNames(userId: number, roles: RoleName[]): Promise<void> {
+        const cacheKey = RbacCacheKeys.userRoles(userId);
+
+        await this.cacheService.set(cacheKey, [...new Set(roles)], this.rbacConfig.userAccessTtl);
     }
 
     async invalidateUserPermissions(userId: number): Promise<void> {
-        await this.cacheService.del(CacheKeyFactory.rbacUserPermissions(userId));
+        await this.cacheService.del(RbacCacheKeys.userPermissions(userId));
     }
 
-    async assignRoleToUser(
-        userId: number,
-        roleName: RoleName,
-        tx?: Prisma.TransactionClient,
-    ): Promise<void> {
-        const role = await this.rbacRepository.findRoleByName(roleName, tx);
-        await this.rbacRepository.assignRoleToUser(userId, role.id, tx);
+    async invalidateUserRoles(userId: number): Promise<void> {
+        await this.cacheService.del(RbacCacheKeys.userRoles(userId));
+    }
 
-        await this.cacheService.del(CacheKeyFactory.rbacUserPermissions(userId));
+    async invalidateUserAccess(userId: number): Promise<void> {
+        await Promise.all([
+            this.invalidateUserPermissions(userId),
+            this.invalidateUserRoles(userId),
+        ]);
     }
 }

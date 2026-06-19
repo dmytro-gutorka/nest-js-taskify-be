@@ -7,9 +7,12 @@ import { RbacService } from './services/rbac.service.js';
 import { RbacCacheService } from './services/rbac-cache.service.js';
 import { PermissionsGuard } from './guards/permissions.guard.js';
 import { RbacRepository } from './repositories/rbac.repository.js';
+import { RbacController } from './rbac.controller.js';
+import { rbacCacheConfig } from './configs/rbac-cache.config.js';
 
 @Module({
-    imports: [DatabaseModule, CacheModule, ConfigModule],
+    imports: [DatabaseModule, CacheModule, ConfigModule, ConfigModule.forFeature(rbacCacheConfig)],
+    controllers: [RbacController],
     providers: [
         RbacRepository,
         RbacCacheService,

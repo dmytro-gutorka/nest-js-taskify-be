@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import { IsBoolean, IsDate, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { TaskPriority, TaskStatus } from '@database/enums';
 import { emptyToUndefinedDate } from '../../../common/utils/converters.utils.js';
+import { TaskStatusFromApiMap, TaskPriorityFromApiMap } from '../tasks.constants.js';
 
 export class CreateTaskDto {
     @IsString({ message: 'Title is required field' })
@@ -12,10 +13,18 @@ export class CreateTaskDto {
     @MinLength(5, { message: 'Min description length is 5' })
     description!: string;
 
+    @Transform(({ value }) => {
+        if (!value) return undefined;
+        return TaskStatusFromApiMap[value as keyof typeof TaskStatusFromApiMap];
+    })
     @IsOptional()
     @IsEnum(TaskStatus)
     status?: TaskStatus;
 
+    @Transform(({ value }) => {
+        if (!value) return undefined;
+        return TaskPriorityFromApiMap[value as keyof typeof TaskPriorityFromApiMap];
+    })
     @IsOptional()
     @IsEnum(TaskPriority)
     priority?: TaskPriority;

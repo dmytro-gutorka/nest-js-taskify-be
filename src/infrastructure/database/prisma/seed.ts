@@ -17,15 +17,33 @@ const ROLE_PERMISSIONS = {
         { resource: PermissionResource.TASKS, action: PermissionAction.READ },
         { resource: PermissionResource.TASKS, action: PermissionAction.UPDATE },
         { resource: PermissionResource.TASKS, action: PermissionAction.DELETE },
+
+        { resource: PermissionResource.USERS, action: PermissionAction.CREATE },
+        { resource: PermissionResource.USERS, action: PermissionAction.READ },
+        { resource: PermissionResource.USERS, action: PermissionAction.UPDATE },
+        { resource: PermissionResource.USERS, action: PermissionAction.DELETE },
+
+        { resource: PermissionResource.RBAC, action: PermissionAction.CREATE },
+        { resource: PermissionResource.RBAC, action: PermissionAction.READ },
+        { resource: PermissionResource.RBAC, action: PermissionAction.UPDATE },
+        { resource: PermissionResource.RBAC, action: PermissionAction.DELETE },
+
     ],
     [RoleName.ADMIN]: [
         { resource: PermissionResource.TASKS, action: PermissionAction.CREATE },
         { resource: PermissionResource.TASKS, action: PermissionAction.READ },
         { resource: PermissionResource.TASKS, action: PermissionAction.UPDATE },
         { resource: PermissionResource.TASKS, action: PermissionAction.DELETE },
+
+        { resource: PermissionResource.USERS, action: PermissionAction.CREATE },
         { resource: PermissionResource.USERS, action: PermissionAction.READ },
         { resource: PermissionResource.USERS, action: PermissionAction.UPDATE },
         { resource: PermissionResource.USERS, action: PermissionAction.DELETE },
+
+        { resource: PermissionResource.RBAC, action: PermissionAction.CREATE },
+        { resource: PermissionResource.RBAC, action: PermissionAction.READ },
+        { resource: PermissionResource.RBAC, action: PermissionAction.UPDATE },
+        { resource: PermissionResource.RBAC, action: PermissionAction.DELETE },
     ],
     [RoleName.GUEST]: [],
 } satisfies Record<RoleName, { resource: RbacResourceValue; action: RbacActionValue }[]>;

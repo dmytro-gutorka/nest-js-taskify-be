@@ -44,13 +44,13 @@ export class TasksController {
     @Get(':id')
     @RequiredPermissions('TASKS:READ')
     async findOne(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
-        return mapToTaskResponse(await this.tasksService.findOne(params.id, user.id));
+        return await this.tasksService.findOneById(params.id, user.id);
     }
 
     @Post()
     @RequiredPermissions('TASKS:CREATE')
     async create(@CurrentUser() user: ActiveUser, @Body() body: CreateTaskDto) {
-        return mapToTaskResponse(await this.tasksService.create(body, user.id));
+        return await this.tasksService.create(user.id, body);
     }
 
     @Patch(':id')
@@ -60,7 +60,7 @@ export class TasksController {
         @Param() params: ParamsIdDto,
         @Body() body: UpdateTaskDto,
     ) {
-        return mapToTaskResponse(await this.tasksService.update(params.id, user.id, body));
+        return await this.tasksService.update(params.id, user.id, body);
     }
 
     @Delete(':id')
