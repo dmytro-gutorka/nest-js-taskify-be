@@ -7,13 +7,13 @@ export class RbacController {
     constructor(private readonly rbacService: RbacService) {}
 
     @Get('roles')
-    @RequiredPermissions('USERS:READ')
+    @RequiredPermissions('RBAC:READ')
     findAllRoles() {
         return this.rbacService.findAllRolesWithPermissions();
     }
 
     @Get('permissions')
-    @RequiredPermissions('USERS:READ')
+    @RequiredPermissions('RBAC:READ')
     findAllPermissions() {
         return this.rbacService.findAllPermissions();
     }

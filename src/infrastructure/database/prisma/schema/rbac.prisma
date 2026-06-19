@@ -18,6 +18,7 @@ enum PermissionAction {
 enum PermissionResource {
   TASKS @map("tasks")
   USERS @map("users")
+  RBAC  @map("rbac")
 
   @@map("permission_resource_enum")
 }
@@ -37,11 +38,11 @@ model Role {
 }
 
 model Permission {
-  id          Int              @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   resource    PermissionResource
   action      PermissionAction
-  key         String           @unique @db.VarChar(150)
-  description String?          @db.Text
+  key         String             @unique @db.VarChar(150)
+  description String?            @db.Text
 
   rolePermissions RolePermission[]
 
