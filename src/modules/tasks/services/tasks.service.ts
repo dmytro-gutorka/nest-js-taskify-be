@@ -55,30 +55,30 @@ export class TasksService {
         return response;
     }
 
-    async update(taskId: number, id: number, dto: UpdateTaskDto): Promise<TaskResponse> {
+    async update(taskId: number, userId: number, dto: UpdateTaskDto): Promise<TaskResponse> {
         const task = await this.tasksRepository.findOneById(taskId);
 
         if (!task) throw new NotFoundException('Task not found');
 
-        const updatedTask = await this.tasksRepository.update(taskId, dto);
+        const updatedTask = await this.tasksRepository.update(taskId, userId, dto);
 
         if (!updatedTask) throw new NotFoundException('Task not found');
 
         const response = mapToTaskResponse(updatedTask);
 
-        await this.tasksCacheService.setTask(id, response);
+        await this.tasksCacheService.setTask(taskId, response);
 
         return response;
     }
 
-    async delete(id: number): Promise<void> {
-        const task = await this.tasksRepository.findOneById(id);
+    async delete(taskId: number, userId: number): Promise<void> {
+        const task = await this.tasksRepository.findOneById(taskId, userId);
 
         if (!task) {
             throw new NotFoundException('Task not found');
         }
 
-        await this.tasksRepository.delete(id);
-        await this.tasksCacheService.invalidateTask(id);
+        await this.tasksRepository.delete(taskId);
+        await this.tasksCacheService.invalidateTask(taskId);
     }
 }

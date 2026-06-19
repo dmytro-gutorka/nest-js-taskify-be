@@ -67,6 +67,6 @@ export class TasksController {
     @HttpCode(200)
     @RequiredPermissions('TASKS:DELETE')
     delete(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
-        return this.tasksService.delete(params.id);
+        return this.tasksService.delete(params.id, user.id);
     }
 }

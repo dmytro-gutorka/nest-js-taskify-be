@@ -60,7 +60,7 @@ export class UsersController {
         });
     }
 
-    @Get('/')
+    @Get()
     @RequiredPermissions('USERS:READ')
     findAll(@Query() query: UsersPageQueryDto) {
         return this.usersService.findAll(query);
@@ -73,7 +73,7 @@ export class UsersController {
     }
 
     @Put(':id/roles')
-    @RequiredPermissions('USERS:UPDATE')
+    @RequiredPermissions('RBAC:UPDATE')
     updateUserRoles(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserRolesDto) {
         return this.usersService.updateUserRoles(id, dto.roles);
     }

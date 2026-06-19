@@ -101,8 +101,8 @@ export class TasksRepository {
         });
     }
 
-    async update(id: number, updateTaskDto: UpdateTaskDto, authorId?: number) {
-        const task = await this.findOneById(id, authorId);
+    async update(taskId: number, authorId: number, updateTaskDto: UpdateTaskDto) {
+        const task = await this.findOneById(taskId, authorId);
 
         if (!task) {
             return null;
