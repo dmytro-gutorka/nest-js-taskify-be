@@ -1,4 +1,4 @@
-import { type TaskStatusApiMap, TaskPriorityApiMap } from './tasks.constants.js';
+import { type TaskStatusToApiMap, TaskPriorityToApiMap } from './tasks.constants.js';
 import type { Task } from '../../infrastructure/database/prisma/generated/client.js';
 import { ValueOf } from '../../common/types/common.types.js';
 
@@ -11,8 +11,8 @@ export interface TaskResponse {
     id: number;
     title: string;
     description: string;
-    status: ValueOf<typeof TaskStatusApiMap>;
-    priority: ValueOf<typeof TaskPriorityApiMap>;
+    status: ValueOf<typeof TaskStatusToApiMap>;
+    priority: ValueOf<typeof TaskPriorityToApiMap>;
     deadline: Date | null;
     isPrivate?: boolean;
     createdAt: Date;

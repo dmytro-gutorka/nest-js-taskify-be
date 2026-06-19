@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksRepository } from '../repositories/tasks.repository.js';
 import { TasksCacheService } from './tasks-cache.service.js';
-import type { TaskCursorPaginatedResponse, TaskEntity } from '../tasks.types.js';
+import type { TaskCursorPaginatedResponse, TaskEntity, TaskResponse } from '../tasks.types.js';
 import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
 import { TaskQueryDto } from '../dto/task-query.dto.js';
 import { CreateTaskDto } from '../dto/create-task.dto.js';
 import { UpdateTaskDto } from '../dto/update-task.dto.js';
-import { MessageResponse } from '../../../common/types/responses.types.js';
 import { PagePaginatedResponse } from '../../../common/types/common.types.js';
+import { mapToTaskResponse } from '../mappers/task-response.mapper.js';
 
 @Injectable()
 export class TasksService {
@@ -17,53 +17,68 @@ export class TasksService {
     ) {}
 
     async findAll(userId: number, query: TaskQueryDto): Promise<PagePaginatedResponse<TaskEntity>> {
-        return this.tasksCacheService.findAll(userId, query);
+        return this.tasksRepository.findAll(userId, query);
     }
 
     async findFeed(
         userId: number,
         query: CursorPaginationQueryDto,
     ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
-        return this.tasksCacheService.findFeed(userId, query);
+        return this.tasksRepository.findFeed(userId, query);
     }
 
-    async findOne(taskId: number, userId: number): Promise<TaskEntity> {
-        const task = await this.tasksCacheService.findOne(taskId, userId);
+    async findOneById(taskId: number, userId: number): Promise<TaskResponse> {
+        const cachedTask = await this.tasksCacheService.getTask(taskId);
 
-        if (!task) throw new NotFoundException('Task not found.');
+        if (cachedTask) return cachedTask;
 
-        return task;
+        const task = await this.tasksRepository.findOneById(taskId, userId);
+
+        if (!task) {
+            throw new NotFoundException('Task not found');
+        }
+
+        const response = mapToTaskResponse(task);
+
+        await this.tasksCacheService.setTask(taskId, response);
+
+        return response;
     }
 
-    async create(createTaskDto: CreateTaskDto, userId: number): Promise<TaskEntity> {
-        const task = await this.tasksRepository.create(createTaskDto, userId);
+    async create(userId: number, dto: CreateTaskDto): Promise<TaskResponse> {
+        const task = await this.tasksRepository.create(dto, userId);
 
-        await this.tasksCacheService.invalidateListsOnly(userId);
+        const response = mapToTaskResponse(task);
 
-        return task;
+        await this.tasksCacheService.setTask(task.id, response);
+
+        return response;
     }
 
-    async update(
-        taskId: number,
-        userId: number,
-        updateTaskDto: UpdateTaskDto,
-    ): Promise<TaskEntity> {
-        const updatedTask = await this.tasksRepository.update(taskId, updateTaskDto, userId);
+    async update(taskId: number, id: number, dto: UpdateTaskDto): Promise<TaskResponse> {
+        const task = await this.tasksRepository.findOneById(taskId);
 
-        if (!updatedTask) throw new NotFoundException('Task not found.');
+        if (!task) throw new NotFoundException('Task not found');
 
-        await this.tasksCacheService.invalidateAfterWrite(taskId, userId);
+        const updatedTask = await this.tasksRepository.update(taskId, dto);
 
-        return updatedTask;
+        if (!updatedTask) throw new NotFoundException('Task not found');
+
+        const response = mapToTaskResponse(updatedTask);
+
+        await this.tasksCacheService.setTask(id, response);
+
+        return response;
     }
 
-    async delete(taskId: number, userId: number): Promise<MessageResponse> {
-        const isDeleted = await this.tasksRepository.delete(taskId, userId);
+    async delete(id: number): Promise<void> {
+        const task = await this.tasksRepository.findOneById(id);
 
-        if (!isDeleted) throw new NotFoundException('Task not found.');
+        if (!task) {
+            throw new NotFoundException('Task not found');
+        }
 
-        await this.tasksCacheService.invalidateAfterWrite(taskId, userId);
-
-        return { message: 'Task deleted successfully' };
+        await this.tasksRepository.delete(id);
+        await this.tasksCacheService.invalidateTask(id);
     }
 }

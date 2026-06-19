@@ -3,6 +3,7 @@ import { IsEnum, IsIn, IsInt, IsOptional, IsString, Min, MinLength } from 'class
 import { TaskPriority, TaskStatus } from '@database/enums';
 import { emptyToUndefined, toArrayOrUndefined } from '../../../common/utils/converters.utils.js';
 import { SortOrder } from '../../../common/enums/sort-order.enum.js';
+import { TaskPriorityFromApiMap, TaskStatusFromApiMap } from '../tasks.constants.js';
 
 const TASK_SEARCH_FIELDS = ['title', 'description'] as const;
 const TASK_SORT_FIELDS = ['createdAt', 'updatedAt', 'title', 'deadline'] as const;
@@ -41,10 +42,18 @@ export class TaskQueryDto {
     @Min(1, { message: `Min 'limit' value is 1` })
     limit: number = 10;
 
+    @Transform(({ value }) => {
+        if (!value) return undefined;
+        return TaskStatusFromApiMap[value as keyof typeof TaskStatusFromApiMap];
+    })
     @IsOptional()
     @IsEnum(TaskStatus)
     status?: TaskStatus;
 
+    @Transform(({ value }) => {
+        if (!value) return undefined;
+        return TaskPriorityFromApiMap[value as keyof typeof TaskPriorityFromApiMap];
+    })
     @IsOptional()
     @IsEnum(TaskPriority)
     priority?: TaskPriority;

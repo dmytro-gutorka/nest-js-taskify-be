@@ -10,6 +10,7 @@ import { RbacService } from '../services/rbac.service.js';
 import { REQUIRED_PERMISSIONS_KEY } from '../decorators/required-permissions.decorator.js';
 import { SKIP_PERMISSIONS_KEY } from '../decorators/skip-permissions.decorator.js';
 import { SKIP_ACCESS_TOKEN_GUARD_KEY } from '../../../common/decorators/skip-access-token.decorator.js';
+import { PermissionKey } from '../rbac.types.js';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -43,9 +44,12 @@ export class PermissionsGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest<Request>();
+
+        if (!request.user?.id) throw new ForbiddenException('User is not authenticated');
+
         const userPermissions = await this.rbacService.getUserPermissionKeys(request.user?.id);
-        const hasAllNecessaryPermissions = requiredPermissions.every((permission) =>
-            userPermissions.has(permission),
+        const hasAllNecessaryPermissions = requiredPermissions.every((permission: PermissionKey) =>
+            userPermissions.includes(permission),
         );
 
         if (!hasAllNecessaryPermissions) throw new ForbiddenException('Insufficient permissions');

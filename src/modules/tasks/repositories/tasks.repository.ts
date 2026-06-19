@@ -83,10 +83,10 @@ export class TasksRepository {
         };
     }
 
-    async findOne(id: number, authorId?: number) {
+    async findOneById(taskId: number, authorId?: number) {
         return this.database.task.findFirst({
             where: {
-                id,
+                id: taskId,
                 ...(authorId ? { authorId } : {}),
             },
         });
@@ -102,7 +102,7 @@ export class TasksRepository {
     }
 
     async update(id: number, updateTaskDto: UpdateTaskDto, authorId?: number) {
-        const task = await this.findOne(id, authorId);
+        const task = await this.findOneById(id, authorId);
 
         if (!task) {
             return null;
@@ -115,7 +115,7 @@ export class TasksRepository {
     }
 
     async delete(id: number, authorId?: number): Promise<boolean> {
-        const task = await this.findOne(id, authorId);
+        const task = await this.findOneById(id, authorId);
 
         if (!task) {
             return false;

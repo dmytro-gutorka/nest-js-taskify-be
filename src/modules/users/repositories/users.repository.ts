@@ -3,24 +3,36 @@ import { DatabaseService } from '@database';
 import type { UserEntity } from '../users.types.js';
 import { CreateUserDto } from '../dto/create-user.dto.js';
 import { UpdateUserDto } from '../dto/update-user.dto.js';
+import { Prisma } from '@database/client';
+import { UsersPageQueryDto } from '../dto/users-page-query.dto.js';
+import { SortOrder } from '../../../common/enums/sort-order.enum.js';
+import { Nullable } from '../../../common/types/common.types.js';
 
 @Injectable()
 export class UsersRepository {
     constructor(private readonly database: DatabaseService) {}
 
-    findOne(id: number): Promise<UserEntity | null> {
-        return this.database.user.findUnique({
-            where: {
-                id,
-            },
+    async findMany(query: UsersPageQueryDto): Promise<UserEntity[]> {
+        const { page, limit, search } = query;
+        const skip = (page - 1) * limit;
+
+        return this.database.user.findMany({
+            where: this.buildUsersWhere(search),
+            skip,
+            take: limit,
+            orderBy: { createdAt: SortOrder.DESC },
         });
     }
 
-    findByEmail(email: string): Promise<UserEntity | null> {
+    async findOne(id: number): Promise<Nullable<UserEntity>> {
         return this.database.user.findUnique({
-            where: {
-                email,
-            },
+            where: { id },
+        });
+    }
+
+    async findByEmail(email: string): Promise<Nullable<UserEntity>> {
+        return this.database.user.findUnique({
+            where: { email },
         });
     }
 
@@ -33,14 +45,10 @@ export class UsersRepository {
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity | null> {
         const existingUser = await this.findOne(id);
 
-        if (!existingUser) {
-            return null;
-        }
+        if (!existingUser) return null;
 
         return this.database.user.update({
-            where: {
-                id,
-            },
+            where: { id },
             data: updateUserDto,
         });
     }
@@ -48,50 +56,39 @@ export class UsersRepository {
     async updatePrimaryEmail(id: number, email: string): Promise<UserEntity | null> {
         const existingUser = await this.findOne(id);
 
-        if (!existingUser) {
-            return null;
-        }
+        if (!existingUser) return null;
 
         return this.database.user.update({
-            where: {
-                id,
-            },
-            data: {
-                email,
-            },
-        });
-    }
-
-    async updateLastLoginAt(id: number, lastLoginAt: Date): Promise<UserEntity | null> {
-        const existingUser = await this.findOne(id);
-
-        if (!existingUser) {
-            return null;
-        }
-
-        return this.database.user.update({
-            where: {
-                id,
-            },
-            data: {
-                lastLoginAt,
-            },
+            where: { id },
+            data: { email },
         });
     }
 
     async delete(id: number): Promise<boolean> {
         const existingUser = await this.findOne(id);
 
-        if (!existingUser) {
-            return false;
-        }
+        if (!existingUser) return false;
 
-        await this.database.user.delete({
-            where: {
-                id,
-            },
-        });
+        await this.database.user.delete({ where: { id } });
 
         return true;
+    }
+
+    async count(query: Pick<UsersPageQueryDto, 'search'>): Promise<number> {
+        return this.database.user.count({
+            where: this.buildUsersWhere(query.search),
+        });
+    }
+
+    private buildUsersWhere(search?: string): Prisma.UserWhereInput {
+        if (!search) return {};
+
+        return {
+            OR: [
+                { email: { contains: search, mode: 'insensitive' } },
+                { name: { contains: search, mode: 'insensitive' } },
+                { surname: { contains: search, mode: 'insensitive' } },
+            ],
+        };
     }
 }
