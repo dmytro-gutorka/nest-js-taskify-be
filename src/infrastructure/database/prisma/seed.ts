@@ -57,6 +57,8 @@ async function main() {
                 create: { name: roleName as RoleName, description: `${roleName} role` },
             });
 
+            const desiredPermissionIds: number[] = [];
+
             for (const { resource, action } of permissions) {
                 const key = `${resource}:${action}`;
 
@@ -65,6 +67,8 @@ async function main() {
                     update: {},
                     create: { resource, action, key },
                 });
+
+                desiredPermissionIds.push(permission.id);
 
                 await tx.rolePermission.upsert({
                     where: {
@@ -75,6 +79,15 @@ async function main() {
                     },
                     update: {},
                     create: { roleId: role.id, permissionId: permission.id },
+                });
+
+                await tx.rolePermission.deleteMany({
+                    where: {
+                        roleId: role.id,
+                        permissionId: {
+                            notIn: desiredPermissionIds,
+                        },
+                    },
                 });
             }
         }

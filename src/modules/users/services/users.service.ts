@@ -73,25 +73,11 @@ export class UsersService {
     async updateUserRoles(userId: number, roles: RoleName[]): Promise<UserDetailsResponse> {
         const user = await this.usersRepository.findOne(userId);
 
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
+        if (!user) throw new NotFoundException('User not found');
 
         await this.rbacService.setUserRoles(userId, roles);
 
         return this.findOne(userId);
-    }
-
-    async create(createUserDto: CreateUserDto): Promise<UserResponse> {
-        const existingUser = await this.usersRepository.findByEmail(createUserDto.email);
-
-        if (existingUser) {
-            throw new ConflictException('User already exists');
-        }
-
-        const user = await this.usersRepository.create(createUserDto);
-
-        return await this.toUserResponse(user);
     }
 
     async update(userId: number, updateUserDto: UpdateUserDto): Promise<UserResponse> {
