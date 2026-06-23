@@ -92,4 +92,14 @@ export class RbacService {
     async findAllPermissions() {
         return this.rbacRepository.findAllPermissions();
     }
+
+    async getUserRolePermissionsWithRulesByPermission(
+        userId: number,
+        permissionKey: PermissionKey,
+    ) {
+        return this.rbacRepository.getUserRolePermissionsWithRulesByPermission(
+            userId,
+            permissionKey,
+        );
+    }
 }

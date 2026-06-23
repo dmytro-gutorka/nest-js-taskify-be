@@ -23,6 +23,20 @@ enum PermissionResource {
   @@map("permission_resource_enum")
 }
 
+enum RolePermissionRuleEffect {
+  ALLOW @map("allow")
+  DENY  @map("deny")
+
+  @@map("role_permission_rule_effect")
+}
+
+enum RolePermissionRuleType {
+  CONDITIONAL @map("conditional")
+  FULL_ACCESS @map("full_access")
+
+  @@map("role_permission_rule_type")
+}
+
 model Role {
   id          Int      @id @default(autoincrement())
   name        RoleName @unique
@@ -76,8 +90,33 @@ model RolePermission {
   permissionId Int        @map("permission_id")
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
+  rules RolePermissionRule[]
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   @@unique([roleId, permissionId], name: "uq_roles_permissions_role_permission")
   @@map("roles_permissions")
 }
+
+model RolePermissionRule {
+  id Int @id @default(autoincrement())
+
+  rolePermissionId Int            @map("role_permission_id")
+  rolePermission   RolePermission @relation(fields: [rolePermissionId], references: [id], onDelete: Cascade)
+
+  effect     RolePermissionRuleEffect @default(ALLOW)
+  type       RolePermissionRuleType   @default(CONDITIONAL)
+  conditions Json?                    @db.JsonB
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("role_permission_rules")
+}
+
+// Логика RolePermissionRuleEffect  + RolePermissionRuleType
+// no conditions                    -> no access
+// ALLOW + CONDITIONAL + conditions -> condition-based access
+// ALLOW + FULL_ACCESS              -> full access
+// DENY + CONDITIONAL + conditions  -> condition-based restriction
+// DENY + FULL_ACCESS               -> full ban (technically the same as "no conditions" but more explicit and semantic)

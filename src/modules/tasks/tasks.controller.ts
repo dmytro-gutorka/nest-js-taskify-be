@@ -18,7 +18,7 @@ export class TasksController {
     @Get()
     @RequiredPermissions('TASKS:READ')
     async findAll(@CurrentUser() user: ActiveUser, @Query() query: TaskQueryDto) {
-        const paginatedTasks = await this.tasksService.findAll(user.id, query);
+        const paginatedTasks = await this.tasksService.findAll(user, query);
         const mappedTasks = paginatedTasks.items.map((task: TaskEntity) => mapToTaskResponse(task));
 
         return {
@@ -44,7 +44,7 @@ export class TasksController {
     @Get(':id')
     @RequiredPermissions('TASKS:READ')
     async findOne(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
-        return await this.tasksService.findOneById(params.id, user.id);
+        return await this.tasksService.findOneById(params.id, user);
     }
 
     @Post()
@@ -60,13 +60,13 @@ export class TasksController {
         @Param() params: ParamsIdDto,
         @Body() body: UpdateTaskDto,
     ) {
-        return await this.tasksService.update(params.id, user.id, body);
+        return await this.tasksService.update(params.id, user, body);
     }
 
     @Delete(':id')
     @HttpCode(200)
     @RequiredPermissions('TASKS:DELETE')
     delete(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
-        return this.tasksService.delete(params.id, user.id);
+        return this.tasksService.delete(params.id, user);
     }
 }
