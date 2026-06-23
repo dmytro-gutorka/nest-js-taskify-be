@@ -9,10 +9,7 @@ import {
     RolePermissionRuleEffect,
     RolePermissionRuleType,
 } from './generated/client.js';
-import {
-    RbacActionValue,
-    RbacResourceValue,
-} from '../../../modules/rbac/index.js';
+import { RbacActionValue, RbacResourceValue } from '../../../modules/rbac/index.js';
 
 const adapter = new PrismaPg({
     connectionString: process.env.DATABASE_URL as string,
@@ -65,7 +62,6 @@ function getRolePermissionRuleSeed(
 ): RolePermissionRuleSeed | null {
     if (roleName === RoleName.GUEST) return null;
 
-
     if (roleName === RoleName.ADMIN) {
         return {
             effect: RolePermissionRuleEffect.ALLOW,
@@ -76,7 +72,6 @@ function getRolePermissionRuleSeed(
 
     if (roleName === RoleName.USER) {
         if (permission.resource !== PermissionResource.TASKS) return null;
-
 
         if (permission.action === PermissionAction.CREATE) {
             return {

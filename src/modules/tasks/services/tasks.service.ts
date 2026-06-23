@@ -6,9 +6,9 @@ import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-
 import { TaskQueryDto } from '../dto/task-query.dto.js';
 import { CreateTaskDto } from '../dto/create-task.dto.js';
 import { UpdateTaskDto } from '../dto/update-task.dto.js';
-import {PagePaginatedResponse, ActiveUser} from '../../../common/types/common.types.js';
+import { PagePaginatedResponse, ActiveUser } from '../../../common/types/common.types.js';
 import { mapToTaskResponse } from '../mappers/task-response.mapper.js';
-import {AbacService} from "../../abac/index.js";
+import { AbacService } from '../../abac/index.js';
 
 @Injectable()
 export class TasksService {
@@ -18,11 +18,11 @@ export class TasksService {
         private readonly abacService: AbacService,
     ) {}
 
-    async findAll(user: ActiveUser, query: TaskQueryDto): Promise<PagePaginatedResponse<TaskEntity>> {
-        const accessWhere = await this.abacService.buildTaskWhereOrThrow(
-            user,
-            'TASKS:READ',
-        );
+    async findAll(
+        user: ActiveUser,
+        query: TaskQueryDto,
+    ): Promise<PagePaginatedResponse<TaskEntity>> {
+        const accessWhere = await this.abacService.buildTaskWhereOrThrow(user, 'TASKS:READ');
 
         return this.tasksRepository.findAll(accessWhere, query);
     }
@@ -34,16 +34,13 @@ export class TasksService {
         return this.tasksRepository.findFeed(userId, query);
     }
 
-    async findOneById(taskId: number, user: ActiveUser,): Promise<TaskResponse> {
+    async findOneById(taskId: number, user: ActiveUser): Promise<TaskResponse> {
         // const cachedTask = await this.tasksCacheService.getTask(taskId);
         //
         // if (cachedTask) return cachedTask;
         // Temporary off for testing purposes
 
-        const accessWhere = await this.abacService.buildTaskWhereOrThrow(
-            user,
-            'TASKS:READ',
-        );
+        const accessWhere = await this.abacService.buildTaskWhereOrThrow(user, 'TASKS:READ');
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 
@@ -67,10 +64,7 @@ export class TasksService {
     }
 
     async update(taskId: number, user: ActiveUser, dto: UpdateTaskDto): Promise<TaskResponse> {
-        const accessWhere = await this.abacService.buildTaskWhereOrThrow(
-            user,
-            'TASKS:UPDATE',
-        );
+        const accessWhere = await this.abacService.buildTaskWhereOrThrow(user, 'TASKS:UPDATE');
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
         if (!task) throw new NotFoundException('Task not found');
@@ -85,10 +79,7 @@ export class TasksService {
     }
 
     async delete(taskId: number, user: ActiveUser): Promise<void> {
-        const accessWhere = await this.abacService.buildTaskWhereOrThrow(
-            user,
-            'TASKS:DELETE',
-        );
+        const accessWhere = await this.abacService.buildTaskWhereOrThrow(user, 'TASKS:DELETE');
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 

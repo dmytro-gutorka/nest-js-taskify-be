@@ -1,6 +1,6 @@
-import {AbacContext, AbacCondition, AbacJsonValue} from "../abac.types.js";
-import {Injectable, BadRequestException} from "@nestjs/common";
-import {ABAC_TEMPLATE_TO_CONTEXT_PATH} from "../abac.constants.js";
+import { AbacContext, AbacCondition, AbacJsonValue } from '../abac.types.js';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { ABAC_TEMPLATE_TO_CONTEXT_PATH } from '../abac.constants.js';
 
 @Injectable()
 export class AbacTemplateResolverService {
@@ -33,11 +33,12 @@ export class AbacTemplateResolverService {
         return value;
     }
 
-    private resolveTemplate(template: string, context: AbacContext): string | number | boolean | null {
+    private resolveTemplate(
+        template: string,
+        context: AbacContext,
+    ): string | number | boolean | null {
         const path =
-            ABAC_TEMPLATE_TO_CONTEXT_PATH[
-                template as keyof typeof ABAC_TEMPLATE_TO_CONTEXT_PATH
-                ];
+            ABAC_TEMPLATE_TO_CONTEXT_PATH[template as keyof typeof ABAC_TEMPLATE_TO_CONTEXT_PATH];
 
         if (!path) {
             throw new BadRequestException(`Unknown ABAC template: ${template}`);

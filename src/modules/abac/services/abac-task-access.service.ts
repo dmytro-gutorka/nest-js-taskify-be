@@ -1,12 +1,16 @@
-import {BuildTaskAccessWhereInput, TaskAccessWhere, RolePermissionWithRules} from "../abac.types.js";
-import {Injectable, BadRequestException} from "@nestjs/common";
-import {AbacTemplateResolverService} from "./abac-template-resolver.service.js";
 import {
-    RolePermissionRuleEffect,
-    RolePermissionRuleType
-} from "@database/client";
-import {RolePermissionRule, Prisma} from "../../../infrastructure/database/prisma/generated/client.js";
-import {isAbacCondition} from "../abac.guards.js";
+    BuildTaskAccessWhereInput,
+    TaskAccessWhere,
+    RolePermissionWithRules,
+} from '../abac.types.js';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { AbacTemplateResolverService } from './abac-template-resolver.service.js';
+import { RolePermissionRuleEffect, RolePermissionRuleType } from '@database/client';
+import {
+    RolePermissionRule,
+    Prisma,
+} from '../../../infrastructure/database/prisma/generated/client.js';
+import { isAbacCondition } from '../abac.guards.js';
 
 @Injectable()
 export class AbacTaskAccessService {
@@ -78,9 +82,7 @@ export class AbacTaskAccessService {
         rules: RolePermissionRule[],
         input: BuildTaskAccessWhereInput,
     ): Prisma.TaskWhereInput {
-        const resolvedConditions = rules.map((rule) =>
-            this.resolveConditionalRule(rule, input),
-        );
+        const resolvedConditions = rules.map((rule) => this.resolveConditionalRule(rule, input));
 
         if (resolvedConditions.length === 1) return resolvedConditions[0];
 

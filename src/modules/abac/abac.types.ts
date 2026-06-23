@@ -1,6 +1,6 @@
-import {Prisma} from '@database/client';
-import {ActiveUser} from "../../common/types/common.types.js";
-import {PermissionKey} from "../rbac/index.js";
+import { Prisma } from '@database/client';
+import { ActiveUser } from '../../common/types/common.types.js';
+import { PermissionKey } from '../rbac/index.js';
 
 export type AbacJsonPrimitive = string | number | boolean | null;
 

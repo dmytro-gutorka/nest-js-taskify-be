@@ -1,4 +1,4 @@
-import {AbacCondition, AbacJsonObject} from "./abac.types.js";
+import { AbacCondition, AbacJsonObject } from './abac.types.js';
 
 function isPlainObject(value: unknown): value is AbacJsonObject {
     return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
