@@ -1,4 +1,4 @@
-import { ActiveUser, ValueOf } from '../../../../common/types/common.types.js';
+import {ActiveUser, ValueOf, Nullable} from '../../../../common/types/common.types.js';
 import { PolicyResult } from './abac-core.policy.js';
 import { PermissionRuleEffect, PermissionRuleType } from '../constants/abac-core.constants.js';
 
@@ -15,6 +15,10 @@ export interface RawRule {
     conditions: unknown;
 }
 
-export interface IWhereBuilder<T> {
-    build(policy: PolicyResult): T | null;
+export interface IWhereBuilder<T = Record<string, unknown>> {
+    build(policy: PolicyResult): Nullable<T>;
+}
+
+export interface AbacModuleOptions {
+    whereBuilder: IWhereBuilder;
 }

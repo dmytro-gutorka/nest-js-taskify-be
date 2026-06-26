@@ -3,7 +3,7 @@ import { PolicyResult } from '../core/types/abac-core.policy.js';
 import { IWhereBuilder } from '../core/types/abac-core.general.types.js';
 import { DslNode, DslLeaf, DslGroup } from '../core/types/abac-core.dsl.types.js';
 
-export class PrismaWhereBuilder implements IWhereBuilder<Record<string, unknown>> {
+export class PrismaWhereBuilder implements IWhereBuilder {
     build(policy: PolicyResult): Record<string, unknown> | null {
         if (policy.effect === 'DENY')
             return null;
@@ -49,6 +49,22 @@ export class PrismaWhereBuilder implements IWhereBuilder<Record<string, unknown>
         switch (op) {
             case DslOperator.EQ:
                 return { [field]: value };
+            case DslOperator.NEQ:
+                return { [field]: { not: value } };
+            case DslOperator.IN:
+                return { [field]: { in: value } };
+            case DslOperator.NOT_IN:
+                return { [field]: { notIn: value } };
+            case DslOperator.GT:
+                return { [field]: { gt: value } };
+            case DslOperator.GTE:
+                return { [field]: { gte: value } };
+            case DslOperator.LT:
+                return { [field]: { lt: value } };
+            case DslOperator.LTE:
+                return { [field]: { lte: value } };
+            case DslOperator.CONTAINS:
+                return { [field]: { has: value } };
             default:
                 throw new Error(`Unsupported DSL operator: ${op}`);
         }

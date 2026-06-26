@@ -12,7 +12,7 @@ export class AbacService {
 
     constructor(
         @Inject(WHERE_BUILDER_TOKEN)
-        private readonly whereBuilder: IWhereBuilder<Record<string, unknown>>,
+        private readonly whereBuilder: IWhereBuilder,
         private readonly rbacService: RbacService,
     ) {}
 
