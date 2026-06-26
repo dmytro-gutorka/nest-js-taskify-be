@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@database';
-import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
+import {
+    RoleName,
+    RolePermissionRuleEffect,
+    RolePermissionRuleType,
+} from '../../../infrastructure/database/prisma/generated/enums.js';
 import { SortOrder } from '../../../common/enums/sort-order.enum.js';
 import { PermissionKey } from '../rbac.types.js';
 import { Prisma } from '@database/client';
@@ -152,6 +156,61 @@ export class RbacRepository {
                 userId,
                 roleId,
             },
+        });
+    }
+
+    async findRolePermission(roleId: number, permissionId: number) {
+        return this.database.rolePermission.findUnique({
+            where: {
+                uq_roles_permissions_role_permission: { roleId, permissionId },
+            },
+        });
+    }
+
+    async findRules(rolePermissionId: number) {
+        return this.database.rolePermissionRule.findMany({
+            where: { rolePermissionId },
+            orderBy: { id: SortOrder.ASC },
+        });
+    }
+
+    async findRule(ruleId: number, rolePermissionId: number) {
+        return this.database.rolePermissionRule.findFirst({
+            where: { id: ruleId, rolePermissionId },
+        });
+    }
+
+    async createRule(
+        rolePermissionId: number,
+        data: { effect: string; type: string; conditions?: Prisma.InputJsonValue },
+    ) {
+        return this.database.rolePermissionRule.create({
+            data: {
+                rolePermissionId,
+                effect: data.effect as RolePermissionRuleEffect,
+                type: data.type as RolePermissionRuleType,
+                conditions: data.conditions ?? Prisma.JsonNull,
+            },
+        });
+    }
+
+    async updateRule(
+        ruleId: number,
+        data: { effect?: string; type?: string; conditions?: Prisma.InputJsonValue },
+    ) {
+        return this.database.rolePermissionRule.update({
+            where: { id: ruleId },
+            data: {
+                ...(data.effect && { effect: data.effect as RolePermissionRuleEffect }),
+                ...(data.type && { type: data.type as RolePermissionRuleType }),
+                ...(data.conditions !== undefined && { conditions: data.conditions }),
+            },
+        });
+    }
+
+    async deleteRule(ruleId: number) {
+        await this.database.rolePermissionRule.delete({
+            where: { id: ruleId },
         });
     }
 

@@ -9,6 +9,7 @@ import { PermissionsGuard } from './guards/permissions.guard.js';
 import { RbacRepository } from './repositories/rbac.repository.js';
 import { RbacController } from './rbac.controller.js';
 import { rbacCacheConfig } from './configs/rbac-cache.config.js';
+import { IsValidDslNodeConstraint } from '../abac/validators/is-valid-dsl-node.validator.js';
 
 @Module({
     imports: [DatabaseModule, CacheModule, ConfigModule, ConfigModule.forFeature(rbacCacheConfig)],
@@ -18,6 +19,7 @@ import { rbacCacheConfig } from './configs/rbac-cache.config.js';
         RbacService,
         RbacCacheService,
         PermissionsGuard,
+        IsValidDslNodeConstraint,
         {
             provide: APP_GUARD,
             useExisting: PermissionsGuard,

@@ -1,9 +1,12 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@database/client';
 import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
 import { RbacCacheService } from './rbac-cache.service.js';
 import { RbacRepository } from '../repositories/rbac.repository.js';
 import { PermissionKey, RoleWithPermissionsResponse } from '../rbac.types.js';
+import { PermissionRuleType } from '../../abac/core/constants/abac-core.constants.js';
+import { CreateRuleDto } from '../dto/create-rule.dto.js';
+import { UpdateRuleDto } from '../dto/update-rule.dto.js';
 
 @Injectable()
 export class RbacService {
@@ -91,6 +94,65 @@ export class RbacService {
 
     async findAllPermissions() {
         return this.rbacRepository.findAllPermissions();
+    }
+
+    async findRules(roleId: number, permissionId: number) {
+        const rolePermission = await this.rbacRepository.findRolePermission(roleId, permissionId);
+
+        if (!rolePermission) throw new NotFoundException('Role permission not found');
+
+        return this.rbacRepository.findRules(rolePermission.id);
+    }
+
+    async createRule(roleId: number, permissionId: number, dto: CreateRuleDto) {
+        const rolePermission = await this.rbacRepository.findRolePermission(roleId, permissionId);
+
+        if (!rolePermission) throw new NotFoundException('Role permission not found');
+
+        if (dto.type === PermissionRuleType.CONDITIONAL && !dto.conditions) {
+            throw new BadRequestException('conditions is required when type is CONDITIONAL');
+        }
+
+        return this.rbacRepository.createRule(rolePermission.id, {
+            effect: dto.effect,
+            type: dto.type,
+            conditions: dto.conditions as Prisma.InputJsonValue | undefined,
+        });
+    }
+
+    async updateRule(roleId: number, permissionId: number, ruleId: number, dto: UpdateRuleDto) {
+        const rolePermission = await this.rbacRepository.findRolePermission(roleId, permissionId);
+
+        if (!rolePermission) throw new NotFoundException('Role permission not found');
+
+        const rule = await this.rbacRepository.findRule(ruleId, rolePermission.id);
+
+        if (!rule) throw new NotFoundException('Rule not found');
+
+        const resolvedType = dto.type ?? rule.type;
+        const resolvedConditions = dto.conditions ?? rule.conditions;
+
+        if (resolvedType === PermissionRuleType.CONDITIONAL && !resolvedConditions) {
+            throw new BadRequestException('conditions is required when type is CONDITIONAL');
+        }
+
+        return this.rbacRepository.updateRule(ruleId, {
+            effect: dto.effect,
+            type: dto.type,
+            conditions: dto.conditions as Prisma.InputJsonValue | undefined,
+        });
+    }
+
+    async deleteRule(roleId: number, permissionId: number, ruleId: number) {
+        const rolePermission = await this.rbacRepository.findRolePermission(roleId, permissionId);
+
+        if (!rolePermission) throw new NotFoundException('Role permission not found');
+
+        const rule = await this.rbacRepository.findRule(ruleId, rolePermission.id);
+
+        if (!rule) throw new NotFoundException('Rule not found');
+
+        await this.rbacRepository.deleteRule(ruleId);
     }
 
     async getUserRolePermissionsWithRulesByPermission(
