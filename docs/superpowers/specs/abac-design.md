@@ -345,8 +345,8 @@ After any rule change, `RbacCacheService` invalidates the cache for the affected
 ```
 src/modules/abac/
 ├── core/
-│   ├── abac-engine.ts
-│   ├── policy-evaluator.ts
+│   ├── abac-core.engine.ts
+│   ├── abac-core.policy-evaluator.ts
 │   ├── template-resolver.ts
 │   └── types.ts
 ├── adapters/
@@ -369,7 +369,7 @@ Existing files that will be removed or replaced:
 - `abac-task-access.service.ts` — replaced by universal `PrismaWhereBuilder`
 - `abac.service.ts` — rewritten as generic `AbacService<T>`
 - `abac-template-resolver.service.ts` — moved to core as `TemplateResolver`
-- `abac.constants.ts` — template registry moves into core
+- `abac.abac-core.constants.ts` — template registry moves into core
 - `abac.types.ts` — rewritten with new DSL types
 
 ---

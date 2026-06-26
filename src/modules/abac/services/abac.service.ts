@@ -1,33 +1,37 @@
+import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
 import { RbacService } from '../../rbac/services/rbac.service.js';
-import { Injectable, ForbiddenException } from '@nestjs/common';
-import { AbacTaskAccessService } from './abac-task-access.service.js';
+import { AbacEngine } from '../core/abac-core.engine.js';
+import { WHERE_BUILDER_TOKEN } from '../abac.constants.js';
 import { ActiveUser } from '../../../common/types/common.types.js';
 import { PermissionKey } from '../../rbac/index.js';
-import { Prisma } from '@database/client';
+import { type IWhereBuilder } from '../core/types/abac-core.general.types.js';
 
 @Injectable()
 export class AbacService {
+    private readonly engine = new AbacEngine();
+
     constructor(
+        @Inject(WHERE_BUILDER_TOKEN)
+        private readonly whereBuilder: IWhereBuilder<Record<string, unknown>>,
         private readonly rbacService: RbacService,
-        private readonly abacTaskAccessService: AbacTaskAccessService,
     ) {}
 
-    async buildTaskWhereOrThrow(
+    async buildWhereOrThrow(
         user: ActiveUser,
         permissionKey: PermissionKey,
-    ): Promise<Prisma.TaskWhereInput> {
+    ): Promise<Record<string, unknown>> {
         const rolePermissions = await this.rbacService.getUserRolePermissionsWithRulesByPermission(
             user.id,
             permissionKey,
         );
 
-        const where = this.abacTaskAccessService.buildWhere({
-            user,
-            permissionKey,
-            rolePermissions,
-        });
+        const rules = rolePermissions.flatMap((rolePermission) => rolePermission.rules);
+        const policy = this.engine.buildPolicy(rules, { user });
+        const where = this.whereBuilder.build(policy);
 
-        if (!where) throw new ForbiddenException('Insufficient permissions');
+        if (where === null) {
+            throw new ForbiddenException('Insufficient permissions');
+        }
 
         return where;
     }

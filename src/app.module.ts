@@ -10,6 +10,8 @@ import { NotificationModule } from './modules/notification/index.js';
 import { AuthModule } from './modules/auth/index.js';
 import { RbacModule } from './modules/rbac/index.js';
 import { CacheModule } from './infrastructure/cache/index.js';
+import { AbacModule } from './modules/abac/index.js';
+import { PrismaWhereBuilder } from './modules/abac/adapters/prisma-where-builder.js';
 
 @Module({
     imports: [
@@ -33,6 +35,7 @@ import { CacheModule } from './infrastructure/cache/index.js';
         NotificationModule,
         AuthModule,
         UsersModule,
+        AbacModule.forRoot({ whereBuilder: new PrismaWhereBuilder() }),
         TasksModule,
         RbacModule,
     ],

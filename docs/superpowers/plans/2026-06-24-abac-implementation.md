@@ -17,13 +17,13 @@
 ### New files
 | File | Responsibility |
 |---|---|
-| `src/modules/abac/core/constants.ts` | `DslOperator` and `LogicalOperator` const objects |
+| `src/modules/abac/core/abac-core.constants.ts` | `DslOperator` and `LogicalOperator` const objects |
 | `src/modules/abac/core/types.ts` | `DslNode`, `PolicyResult`, `IWhereBuilder`, `AbacContext` |
 | `src/modules/abac/core/template-resolver.ts` | Resolves `$$user.id` templates in DslNode trees |
 | `src/modules/abac/core/template-resolver.spec.ts` | Tests for TemplateResolver |
-| `src/modules/abac/core/policy-evaluator.ts` | Converts `RolePermissionRule[]` → `PolicyResult` |
+| `src/modules/abac/core/abac-core.policy-evaluator.ts` | Converts `RolePermissionRule[]` → `PolicyResult` |
 | `src/modules/abac/core/policy-evaluator.spec.ts` | Tests for PolicyEvaluator |
-| `src/modules/abac/core/abac-engine.ts` | Orchestrates evaluator + resolver |
+| `src/modules/abac/core/abac-core.engine.ts` | Orchestrates evaluator + resolver |
 | `src/modules/abac/core/abac-engine.spec.ts` | Tests for AbacEngine |
 | `src/modules/abac/adapters/prisma-where-builder.ts` | Translates `PolicyResult` → Prisma WHERE |
 | `src/modules/abac/adapters/prisma-where-builder.spec.ts` | Tests for PrismaWhereBuilder |
@@ -42,7 +42,7 @@
 - `src/modules/abac/services/abac-task-access.service.ts`
 - `src/modules/abac/services/abac-template-resolver.service.ts`
 - `src/modules/abac/services/abac.service.ts` (replaced by root-level `abac.service.ts`)
-- `src/modules/abac/abac.constants.ts`
+- `src/modules/abac/abac.abac-core.constants.ts`
 - `src/modules/abac/abac.types.ts`
 - `src/modules/abac/abac.guards.ts`
 
@@ -53,12 +53,12 @@
 **What:** Создаём константные объекты для операторов DSL. Это runtime-значения — их можно использовать в коде вместо магических строк (`DslOperator.EQ` вместо `'eq'`). TypeScript-тип выводится автоматически через `typeof`.
 
 **Files:**
-- Create: `src/modules/abac/core/constants.ts`
+- Create: `src/modules/abac/core/abac-core.constants.ts`
 
 - [ ] **Step 1: Create constants file**
 
 ```ts
-// src/modules/abac/core/constants.ts
+// src/modules/abac/core/abac-core.constants.ts
 
 export const DslOperator = {
     EQ: 'eq',
@@ -93,7 +93,7 @@ Expected: no errors
 - [ ] **Step 3: Commit**
 
 ```bash
-git add src/modules/abac/core/constants.ts
+git add src/modules/abac/core/abac-core.constants.ts
 git commit -m "feat(abac): add DSL operator and logical operator constants"
 ```
 
@@ -340,7 +340,7 @@ git commit -m "feat(abac): add TemplateResolver with tests"
 **What:** Принимает `RolePermissionRule[]` из БД и применяет логику приоритетов из комментария в схеме. Возвращает `PolicyResult` — одно из трёх: `deny`, `full_access` (с опциональными deny-условиями), или `conditional` (с allow и deny условиями). Этот класс ничего не знает ни о шаблонах, ни об ORM — только о приоритете правил.
 
 **Files:**
-- Create: `src/modules/abac/core/policy-evaluator.ts`
+- Create: `src/modules/abac/core/abac-core.policy-evaluator.ts`
 - Create: `src/modules/abac/core/policy-evaluator.spec.ts`
 
 - [ ] **Step 1: Write failing tests**
@@ -445,7 +445,7 @@ Expected: FAIL — `Cannot find module './policy-evaluator.js'`
 - [ ] **Step 3: Implement PolicyEvaluator**
 
 ```ts
-// src/modules/abac/core/policy-evaluator.ts
+// src/modules/abac/core/abac-core.policy-evaluator.ts
 
 import { BadRequestException } from '@nestjs/common';
 import { DslNode, PolicyResult } from './types.js';
@@ -512,7 +512,7 @@ Expected: PASS — 8 tests passing
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/modules/abac/core/policy-evaluator.ts src/modules/abac/core/policy-evaluator.spec.ts
+git add src/modules/abac/core/abac-core.policy-evaluator.ts src/modules/abac/core/policy-evaluator.spec.ts
 git commit -m "feat(abac): add PolicyEvaluator with tests"
 ```
 
@@ -523,7 +523,7 @@ git commit -m "feat(abac): add PolicyEvaluator with tests"
 **What:** Единственная точка входа в ядро. Оркестрирует `PolicyEvaluator` и `TemplateResolver` в правильном порядке: сначала оцениваем правила (evaluator), потом резолвим шаблоны (resolver) в условиях результата. Важно: шаблоны резолвятся только в `conditional` и `full_access` с denyConditions — если `deny`, всё равно возвращаем `deny` без лишней работы.
 
 **Files:**
-- Create: `src/modules/abac/core/abac-engine.ts`
+- Create: `src/modules/abac/core/abac-core.engine.ts`
 - Create: `src/modules/abac/core/abac-engine.spec.ts`
 
 - [ ] **Step 1: Write failing tests**
@@ -601,7 +601,7 @@ Expected: FAIL — `Cannot find module './abac-engine.js'`
 - [ ] **Step 3: Implement AbacEngine**
 
 ```ts
-// src/modules/abac/core/abac-engine.ts
+// src/modules/abac/core/abac-core.engine.ts
 
 import { PolicyEvaluator, RawRule } from './policy-evaluator.js';
 import { TemplateResolver } from './template-resolver.js';
@@ -651,7 +651,7 @@ Expected: PASS — 4 tests passing
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/modules/abac/core/abac-engine.ts src/modules/abac/core/abac-engine.spec.ts
+git add src/modules/abac/core/abac-core.engine.ts src/modules/abac/core/abac-engine.spec.ts
 git commit -m "feat(abac): add AbacEngine with tests"
 ```
 
@@ -1333,7 +1333,7 @@ git commit -m "refactor(seed): update ABAC conditions to DSL format"
 - Delete: `src/modules/abac/services/abac-task-access.service.ts`
 - Delete: `src/modules/abac/services/abac-template-resolver.service.ts`
 - Delete: `src/modules/abac/services/abac.service.ts`
-- Delete: `src/modules/abac/abac.constants.ts`
+- Delete: `src/modules/abac/abac.abac-core.constants.ts`
 - Delete: `src/modules/abac/abac.types.ts`
 - Delete: `src/modules/abac/abac.guards.ts`
 
@@ -1343,7 +1343,7 @@ git commit -m "refactor(seed): update ABAC conditions to DSL format"
 rm src/modules/abac/services/abac-task-access.service.ts
 rm src/modules/abac/services/abac-template-resolver.service.ts
 rm src/modules/abac/services/abac.service.ts
-rm src/modules/abac/abac.constants.ts
+rm src/modules/abac/abac.abac-core.constants.ts
 rm src/modules/abac/abac.types.ts
 rm src/modules/abac/abac.guards.ts
 ```

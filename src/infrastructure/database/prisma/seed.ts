@@ -90,7 +90,9 @@ function getRolePermissionRuleSeed(
                 effect: RolePermissionRuleEffect.ALLOW,
                 type: RolePermissionRuleType.CONDITIONAL,
                 conditions: {
-                    authorId: '$$user.id',
+                    field: 'authorId',
+                    op: 'eq',
+                    value: '$$user.id',
                 },
             };
         }
