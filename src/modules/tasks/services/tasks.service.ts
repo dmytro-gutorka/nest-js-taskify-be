@@ -23,10 +23,7 @@ export class TasksService {
         user: ActiveUser,
         query: TaskQueryDto,
     ): Promise<PagePaginatedResponse<TaskEntity>> {
-        const accessWhere = (await this.abacService.buildWhereOrThrow(
-            user,
-            'TASKS:READ',
-        )) as Prisma.TaskWhereInput;
+        const accessWhere = (await this.abacService.buildWhereOrThrow(user, 'TASKS:READ',));
 
         return this.tasksRepository.findAll(accessWhere, query);
     }
@@ -44,10 +41,7 @@ export class TasksService {
         // if (cachedTask) return cachedTask;
         // Temporary off for testing purposes
 
-        const accessWhere = (await this.abacService.buildWhereOrThrow(
-            user,
-            'TASKS:READ',
-        )) as Prisma.TaskWhereInput;
+        const accessWhere = (await this.abacService.buildWhereOrThrow(user,'TASKS:READ'))
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 

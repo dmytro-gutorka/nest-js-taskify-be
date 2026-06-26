@@ -9,16 +9,16 @@ export class PrismaWhereBuilder implements IWhereBuilder<Record<string, unknown>
             return null;
 
         if (policy.effect === 'FULL_ACCESS') {
-            if (policy.denyConditions.length === 0)
+            const denyParts = this.buildDenyPart(policy.denyConditions);
+
+            if (denyParts.length === 0)
                 return {};
 
-            return {
-                AND: policy.denyConditions.map((node) => ({ NOT: this.buildNode(node) })),
-            };
+            return { AND: denyParts };
         }
 
         const allowPart = this.buildAllowPart(policy.allowConditions);
-        const denyParts = policy.denyConditions.map((node) => ({ NOT: this.buildNode(node) }));
+        const denyParts = this.buildDenyPart(policy.denyConditions);
 
         if (denyParts.length === 0)
             return allowPart;
@@ -27,10 +27,13 @@ export class PrismaWhereBuilder implements IWhereBuilder<Record<string, unknown>
     }
 
     private buildAllowPart(conditions: DslNode[]): Record<string, unknown> {
-        if (conditions.length === 1)
-            return this.buildNode(conditions[0]);
-
         return { OR: conditions.map((node) => this.buildNode(node)) };
+    }
+
+    private buildDenyPart(conditions: DslNode[]): Record<string, unknown>[]  {
+        return conditions.map((node) => {
+            return { NOT: this.buildNode(node)}
+        })
     }
 
     private buildNode(node: DslNode): Record<string, unknown> {
