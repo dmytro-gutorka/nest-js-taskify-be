@@ -23,6 +23,10 @@ model Task {
   deadline    DateTime?    @db.Timestamptz
   isPrivate   Boolean      @default(false) @map("is_private")
 
+  latitude  Float?
+  longitude Float?
+  location  Unsupported("geography(Point, 4326)")?
+
   authorId Int  @map("author_id")
   author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 

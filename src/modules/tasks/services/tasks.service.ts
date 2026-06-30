@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { TasksRepository } from '../repositories/tasks.repository.js';
-import { TasksCacheService } from './tasks-cache.service.js';
-import type { TaskCursorPaginatedResponse, TaskEntity, TaskResponse } from '../tasks.types.js';
-import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
-import { TaskQueryDto } from '../dto/task-query.dto.js';
-import { CreateTaskDto } from '../dto/create-task.dto.js';
-import { UpdateTaskDto } from '../dto/update-task.dto.js';
-import { PagePaginatedResponse, ActiveUser } from '../../../common/types/common.types.js';
-import { mapToTaskResponse } from '../mappers/task-response.mapper.js';
-import { AbacService } from '../../abac/index.js';
-import { Prisma } from '../../../infrastructure/database/prisma/generated/client.js';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {TasksRepository} from '../repositories/tasks.repository.js';
+import {TasksCacheService} from './tasks-cache.service.js';
+import type {TaskCursorPaginatedResponse, TaskEntity, TaskResponse, TaskMapItemResponse} from '../tasks.types.js';
+import {CursorPaginationQueryDto} from '../../../common/dto/cursor-pagination-query.dto.js';
+import {TaskQueryDto} from '../dto/task-query.dto.js';
+import {CreateTaskDto} from '../dto/create-task.dto.js';
+import {UpdateTaskDto} from '../dto/update-task.dto.js';
+import {PagePaginatedResponse, ActiveUser} from '../../../common/types/common.types.js';
+import {mapToTaskResponse, mapToTaskMapItemResponse} from '../mappers/task-response.mapper.js';
+import {AbacService} from '../../abac/index.js';
+import {Prisma} from '../../../infrastructure/database/prisma/generated/client.js';
+import {TaskMapQueryDto} from "../dto/task-map-query.dto.js";
 
 @Injectable()
 export class TasksService {
@@ -17,7 +18,8 @@ export class TasksService {
         private readonly tasksRepository: TasksRepository,
         private readonly tasksCacheService: TasksCacheService,
         private readonly abacService: AbacService,
-    ) {}
+    ) {
+    }
 
     async findAll(
         user: ActiveUser,
@@ -41,7 +43,7 @@ export class TasksService {
         // if (cachedTask) return cachedTask;
         // Temporary off for testing purposes
 
-        const accessWhere = (await this.abacService.buildWhereOrThrow(user,'TASKS:READ'))
+        const accessWhere = (await this.abacService.buildWhereOrThrow(user, 'TASKS:READ'))
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 
@@ -52,6 +54,17 @@ export class TasksService {
         await this.tasksCacheService.setTask(taskId, response);
 
         return response;
+    }
+
+    async findMapTasks(
+        user: ActiveUser,
+        query: TaskMapQueryDto,
+    ): Promise<TaskMapItemResponse[]> {
+        const accessWhere = await this.abacService.buildWhereOrThrow(user, 'TASKS:READ') as Prisma.TaskWhereInput
+
+        const tasks = await this.tasksRepository.findMapTasks(accessWhere, query);
+
+        return tasks.map((task) => mapToTaskMapItemResponse(task));
     }
 
     async create(userId: number, dto: CreateTaskDto): Promise<TaskResponse> {

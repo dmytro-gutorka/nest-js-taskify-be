@@ -6,7 +6,8 @@ services:
       - '${REDIS_PORT}:6379'
 
   postgres:
-    image: postgres:17.5
+    image: postgis/postgis:17-3.5
+    platform: linux/amd64
     restart: on-failure
     ports:
       - '${DB_PORT}:5432'

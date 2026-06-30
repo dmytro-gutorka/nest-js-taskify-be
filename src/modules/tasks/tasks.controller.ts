@@ -10,6 +10,7 @@ import { ParamsIdDto } from '../../common/dto/params-id.dto.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { RequiredPermissions } from '../rbac/index.js';
+import {TaskMapQueryDto} from "./dto/task-map-query.dto.js";
 
 @Controller('tasks')
 export class TasksController {
@@ -39,6 +40,12 @@ export class TasksController {
             ...cursorPaginatedTasks,
             items: mappedTasks,
         };
+    }
+
+    @Get('map')
+    @RequiredPermissions('TASKS:READ')
+    async findMapTasks(@CurrentUser() user: ActiveUser, @Query() query: TaskMapQueryDto) {
+        return this.tasksService.findMapTasks(user, query);
     }
 
     @Get(':id')
