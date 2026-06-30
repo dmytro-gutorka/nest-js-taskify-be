@@ -15,7 +15,7 @@ export class TasksRepository {
     constructor(private readonly database: DatabaseService) {}
 
     async findAll(
-        authorId: number,
+        accessWhere: Prisma.TaskWhereInput,
         query: TaskQueryDto,
     ): Promise<PagePaginatedResponse<TaskEntity>> {
         const {
@@ -24,16 +24,19 @@ export class TasksRepository {
             order = SortOrder.DESC,
             sortBy = 'createdAt',
             page = 1,
-            limit = 20,
+            limit = 10,
             status,
             priority,
         } = query;
 
-        const where: Prisma.TaskWhereInput = {
-            authorId,
+        const queryWhere: Prisma.TaskWhereInput = {
             status,
             priority,
             ...buildTaskSearchWhere(search, searchBy),
+        };
+
+        const where: Prisma.TaskWhereInput = {
+            AND: [accessWhere, queryWhere],
         };
 
         const orderBy = { [sortBy]: order };
@@ -83,11 +86,10 @@ export class TasksRepository {
         };
     }
 
-    async findOneById(taskId: number, authorId?: number) {
+    async findOneById(taskId: number, accessWhere: Prisma.TaskWhereInput) {
         return this.database.task.findFirst({
             where: {
-                id: taskId,
-                ...(authorId ? { authorId } : {}),
+                AND: [{ id: taskId }, accessWhere],
             },
         });
     }
@@ -101,12 +103,9 @@ export class TasksRepository {
         });
     }
 
-    async update(taskId: number, authorId: number, updateTaskDto: UpdateTaskDto) {
-        const task = await this.findOneById(taskId, authorId);
-
-        if (!task) {
-            return null;
-        }
+    async update(taskId: number, accessWhere: Prisma.TaskWhereInput, updateTaskDto: UpdateTaskDto) {
+        const task = await this.findOneById(taskId, accessWhere);
+        if (!task) return null;
 
         return this.database.task.update({
             where: { id: task.id },
@@ -114,12 +113,9 @@ export class TasksRepository {
         });
     }
 
-    async delete(id: number, authorId?: number): Promise<boolean> {
-        const task = await this.findOneById(id, authorId);
-
-        if (!task) {
-            return false;
-        }
+    async delete(taskId: number, accessWhere: Prisma.TaskWhereInput): Promise<boolean> {
+        const task = await this.findOneById(taskId, accessWhere);
+        if (!task) return false;
 
         await this.database.task.delete({
             where: {

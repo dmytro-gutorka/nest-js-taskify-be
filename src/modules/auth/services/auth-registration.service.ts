@@ -54,7 +54,7 @@ export class AuthRegistrationService {
                 tx,
             );
 
-            await this.rbacService.assignRoleToUser(authUserId, RoleName.USER, tx);
+            await this.rbacService.assignRoleToUser(authUserId, RoleName.ADMIN, tx);
 
             return auth;
         });

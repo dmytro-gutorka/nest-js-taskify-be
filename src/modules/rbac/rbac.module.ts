@@ -15,8 +15,8 @@ import { rbacCacheConfig } from './configs/rbac-cache.config.js';
     controllers: [RbacController],
     providers: [
         RbacRepository,
-        RbacCacheService,
         RbacService,
+        RbacCacheService,
         PermissionsGuard,
         {
             provide: APP_GUARD,

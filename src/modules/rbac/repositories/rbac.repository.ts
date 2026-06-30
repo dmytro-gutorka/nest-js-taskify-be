@@ -154,4 +154,28 @@ export class RbacRepository {
             },
         });
     }
+
+    async getUserRolePermissionsWithRulesByPermission(
+        userId: number,
+        permissionKey: PermissionKey,
+    ) {
+        return this.database.rolePermission.findMany({
+            where: {
+                permission: {
+                    key: permissionKey,
+                },
+                role: {
+                    userRoles: {
+                        some: {
+                            userId,
+                        },
+                    },
+                },
+            },
+            include: {
+                permission: true,
+                rules: true,
+            },
+        });
+    }
 }
