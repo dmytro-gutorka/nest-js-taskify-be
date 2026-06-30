@@ -71,34 +71,40 @@ export class TasksRepository {
         if (!allowedTaskIds.length) return [];
 
         return this.database.$queryRaw<TaskEntityWithDistance[]>`
-        SELECT
-            "id",
-            "title",
-            "description",
-            "status",
-            "priority",
-            "deadline",
-            "is_private" AS "isPrivate",
-            "latitude",
-            "longitude",
-            "author_id" AS "authorId",
-            "created_at" AS "createdAt",
-            "updated_at" AS "updatedAt",
-            ST_Distance(
-                "location",
-                ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography
-            ) AS "distance"
-        FROM "tasks"
-        WHERE
-            "id" = ANY(${allowedTaskIds})
-            AND "location" IS NOT NULL
-            AND ST_DWithin(
-                "location",
-                ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
-                ${radius}
+            WITH user_location AS (
+                SELECT ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}),4326)::geography AS point
             )
-        ORDER BY "distance" ASC
-        LIMIT ${limit}
+            SELECT
+                "tasks"."id",
+                "tasks"."title",
+                "tasks"."description",
+
+                CASE "tasks"."status"
+                    WHEN 'todo' THEN 'TODO'
+                    WHEN 'in_progress' THEN 'IN_PROGRESS'
+                    WHEN 'done' THEN 'DONE'
+                    END AS "status",
+                CASE "tasks"."priority"
+                    WHEN 'low' THEN 'LOW'
+                    WHEN 'medium' THEN 'MEDIUM'
+                    WHEN 'high' THEN 'HIGH'
+                    END AS "priority",
+
+                "tasks"."deadline",
+                "tasks"."is_private" AS "isPrivate",
+                "tasks"."latitude",
+                "tasks"."longitude",
+                "tasks"."author_id" AS "authorId",
+                "tasks"."created_at" AS "createdAt",
+                "tasks"."updated_at" AS "updatedAt",
+                ST_Distance("tasks"."location", user_location.point) AS "distance"
+            FROM "tasks", user_location
+            WHERE
+                "tasks"."id" = ANY(${allowedTaskIds})
+            AND "tasks"."location" IS NOT NULL
+            AND ST_DWithin("tasks"."location", user_location.point, ${radius})
+            ORDER BY "distance" ASC
+                LIMIT ${limit}
     `;
     }
 

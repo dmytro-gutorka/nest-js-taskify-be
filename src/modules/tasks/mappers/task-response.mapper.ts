@@ -41,8 +41,8 @@ export function mapToTaskNearbyItemResponse(task: TaskEntityWithDistance): TaskN
         title: task.title,
         status: TaskStatusToApiMap[task.status],
         priority: TaskPriorityToApiMap[task.priority],
+        distance: task.distance,
         latitude: task.latitude!,
         longitude: task.longitude!,
-        distance: task.distance,
     };
 }
