@@ -1,7 +1,10 @@
-import {Type, Transform} from "class-transformer";
-import {IsLatitude, IsLongitude, IsOptional, IsEnum} from "class-validator";
-import {TaskStatusFromApiMap, TaskPriorityFromApiMap} from "../tasks.constants.js";
-import {TaskStatus, TaskPriority} from "../../../infrastructure/database/prisma/generated/enums.js";
+import { Type, Transform } from 'class-transformer';
+import { IsLatitude, IsLongitude, IsOptional, IsEnum } from 'class-validator';
+import { TaskStatusFromApiMap, TaskPriorityFromApiMap } from '../tasks.constants.js';
+import {
+    TaskStatus,
+    TaskPriority,
+} from '../../../infrastructure/database/prisma/generated/enums.js';
 
 export class TaskMapQueryDto {
     @Type(() => Number)

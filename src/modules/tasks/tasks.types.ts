@@ -1,8 +1,9 @@
 import { type TaskStatusToApiMap, TaskPriorityToApiMap } from './tasks.constants.js';
 import type { Task } from '../../infrastructure/database/prisma/generated/client.js';
-import {ValueOf, Nullable} from '../../common/types/common.types.js';
+import { ValueOf, Nullable } from '../../common/types/common.types.js';
 
 export type TaskEntity = Task;
+export type TaskEntityWithDistance = Task & { distance: number };
 
 export interface TaskResponse {
     authorId: number;
@@ -30,7 +31,11 @@ export interface TaskMapItemResponse {
 
 export interface TaskCoordinates {
     latitude?: Nullable<number>;
-    longitude?: Nullable<number>
+    longitude?: Nullable<number>;
+}
+
+export interface TaskNearbyItemResponse extends TaskMapItemResponse {
+    distance: number;
 }
 
 export interface TaskCursorPaginatedResponse<T> {

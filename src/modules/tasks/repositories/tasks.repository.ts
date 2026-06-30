@@ -1,21 +1,26 @@
-import {DatabaseService} from '@database';
-import {Injectable} from '@nestjs/common';
-import {Prisma} from '@database/client';
-import {TaskCursorPaginatedResponse, TaskEntity, TaskCoordinates} from '../tasks.types.js';
-import {buildTaskSearchWhere} from '../utils/buildTaskSearchWhere.js';
-import {TaskQueryDto} from '../dto/task-query.dto.js';
-import {SortOrder} from '../../../common/enums/sort-order.enum.js';
-import {CursorPaginationQueryDto} from '../../../common/dto/cursor-pagination-query.dto.js';
-import {CreateTaskDto} from '../dto/create-task.dto.js';
-import {UpdateTaskDto} from '../dto/update-task.dto.js';
-import {PagePaginatedResponse, Nullable} from '../../../common/types/common.types.js';
-import {TaskMapQueryDto} from "../dto/task-map-query.dto.js";
-import {DEFAULT_TASKS_MAP_LIMIT} from "../tasks.constants.js";
+import { DatabaseService } from '@database';
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@database/client';
+import {
+    TaskCursorPaginatedResponse,
+    TaskEntity,
+    TaskCoordinates,
+    TaskEntityWithDistance,
+} from '../tasks.types.js';
+import { buildTaskSearchWhere } from '../utils/buildTaskSearchWhere.js';
+import { TaskQueryDto } from '../dto/task-query.dto.js';
+import { SortOrder } from '../../../common/enums/sort-order.enum.js';
+import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
+import { CreateTaskDto } from '../dto/create-task.dto.js';
+import { UpdateTaskDto } from '../dto/update-task.dto.js';
+import { PagePaginatedResponse, Nullable } from '../../../common/types/common.types.js';
+import { TaskMapQueryDto } from '../dto/task-map-query.dto.js';
+import { DEFAULT_TASKS_MAP_LIMIT } from '../tasks.constants.js';
+import { TasksNearbyQueryDto } from '../dto/tasks-nearby-query.dto.js';
 
 @Injectable()
 export class TasksRepository {
-    constructor(private readonly database: DatabaseService) {
-    }
+    constructor(private readonly database: DatabaseService) {}
 
     async findMapTasks(
         accessWhere: Prisma.TaskWhereInput,
@@ -48,6 +53,55 @@ export class TasksRepository {
         });
     }
 
+    async findNearbyTasks(
+        accessWhere: Prisma.TaskWhereInput,
+        query: TasksNearbyQueryDto,
+    ): Promise<TaskEntityWithDistance[]> {
+        const { latitude, longitude, radius, limit } = query;
+
+        const allowedTasks = await this.database.task.findMany({
+            where: accessWhere,
+            select: {
+                id: true,
+            },
+        });
+
+        const allowedTaskIds = allowedTasks.map((task) => task.id);
+
+        if (!allowedTaskIds.length) return [];
+
+        return this.database.$queryRaw<TaskEntityWithDistance[]>`
+        SELECT
+            "id",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "deadline",
+            "is_private" AS "isPrivate",
+            "latitude",
+            "longitude",
+            "author_id" AS "authorId",
+            "created_at" AS "createdAt",
+            "updated_at" AS "updatedAt",
+            ST_Distance(
+                "location",
+                ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography
+            ) AS "distance"
+        FROM "tasks"
+        WHERE
+            "id" = ANY(${allowedTaskIds})
+            AND "location" IS NOT NULL
+            AND ST_DWithin(
+                "location",
+                ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+                ${radius}
+            )
+        ORDER BY "distance" ASC
+        LIMIT ${limit}
+    `;
+    }
+
     async findAll(
         accessWhere: Prisma.TaskWhereInput,
         query: TaskQueryDto,
@@ -73,7 +127,7 @@ export class TasksRepository {
             AND: [accessWhere, queryWhere],
         };
 
-        const orderBy = {[sortBy]: order};
+        const orderBy = { [sortBy]: order };
         const skip = (page - 1) * limit;
         const [items, total] = await this.database.$transaction([
             this.database.task.findMany({
@@ -82,7 +136,7 @@ export class TasksRepository {
                 skip,
                 take: limit,
             }),
-            this.database.task.count({where}),
+            this.database.task.count({ where }),
         ]);
 
         return {
@@ -98,16 +152,16 @@ export class TasksRepository {
         authorId: number,
         query: CursorPaginationQueryDto,
     ): Promise<TaskCursorPaginatedResponse<TaskEntity>> {
-        const {cursor, limit = 10} = query;
+        const { cursor, limit = 10 } = query;
 
         const items = await this.database.task.findMany({
             where: {
                 authorId,
                 isPrivate: false,
             },
-            orderBy: {id: SortOrder.DESC},
+            orderBy: { id: SortOrder.DESC },
             take: limit + 1,
-            ...(cursor ? {cursor: {id: cursor}, skip: 1} : {}),
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
         });
 
         const hasNextPage = items.length > limit;
@@ -123,7 +177,7 @@ export class TasksRepository {
     async findOneById(taskId: number, accessWhere: Prisma.TaskWhereInput) {
         return this.database.task.findFirst({
             where: {
-                AND: [{id: taskId}, accessWhere],
+                AND: [{ id: taskId }, accessWhere],
             },
         });
     }
@@ -136,11 +190,11 @@ export class TasksRepository {
             },
         });
 
-        await this.syncTaskPostgisLocation(task.id, createTaskDto)
+        await this.syncTaskPostgisLocation(task.id, createTaskDto);
 
         return this.database.task.findUniqueOrThrow({
-            where: {id: task.id}
-        })
+            where: { id: task.id },
+        });
     }
 
     async update(taskId: number, accessWhere: Prisma.TaskWhereInput, updateTaskDto: UpdateTaskDto) {
@@ -149,15 +203,15 @@ export class TasksRepository {
         if (!task) return null;
 
         const updatedTask = await this.database.task.update({
-            where: {id: task.id},
+            where: { id: task.id },
             data: updateTaskDto,
         });
 
-        await this.syncTaskPostgisLocation(updatedTask.id, updateTaskDto)
+        await this.syncTaskPostgisLocation(updatedTask.id, updateTaskDto);
 
         return this.database.task.findUniqueOrThrow({
-            where: {id: task.id}
-        })
+            where: { id: task.id },
+        });
     }
 
     async delete(taskId: number, accessWhere: Prisma.TaskWhereInput): Promise<boolean> {
@@ -180,9 +234,9 @@ export class TasksRepository {
 
     private async syncTaskPostgisLocation(
         taskId: number,
-        coordinates: TaskCoordinates
+        coordinates: TaskCoordinates,
     ): Promise<void> {
-        const {latitude, longitude} = coordinates;
+        const { latitude, longitude } = coordinates;
 
         if (!this.hasCoordinates(coordinates)) return;
 

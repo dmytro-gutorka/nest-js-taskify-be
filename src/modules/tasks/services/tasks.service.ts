@@ -1,16 +1,27 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
-import {TasksRepository} from '../repositories/tasks.repository.js';
-import {TasksCacheService} from './tasks-cache.service.js';
-import type {TaskCursorPaginatedResponse, TaskEntity, TaskResponse, TaskMapItemResponse} from '../tasks.types.js';
-import {CursorPaginationQueryDto} from '../../../common/dto/cursor-pagination-query.dto.js';
-import {TaskQueryDto} from '../dto/task-query.dto.js';
-import {CreateTaskDto} from '../dto/create-task.dto.js';
-import {UpdateTaskDto} from '../dto/update-task.dto.js';
-import {PagePaginatedResponse, ActiveUser} from '../../../common/types/common.types.js';
-import {mapToTaskResponse, mapToTaskMapItemResponse} from '../mappers/task-response.mapper.js';
-import {AbacService} from '../../abac/index.js';
-import {Prisma} from '../../../infrastructure/database/prisma/generated/client.js';
-import {TaskMapQueryDto} from "../dto/task-map-query.dto.js";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { TasksRepository } from '../repositories/tasks.repository.js';
+import { TasksCacheService } from './tasks-cache.service.js';
+import type {
+    TaskCursorPaginatedResponse,
+    TaskEntity,
+    TaskResponse,
+    TaskMapItemResponse,
+    TaskNearbyItemResponse,
+} from '../tasks.types.js';
+import { CursorPaginationQueryDto } from '../../../common/dto/cursor-pagination-query.dto.js';
+import { TaskQueryDto } from '../dto/task-query.dto.js';
+import { CreateTaskDto } from '../dto/create-task.dto.js';
+import { UpdateTaskDto } from '../dto/update-task.dto.js';
+import { PagePaginatedResponse, ActiveUser } from '../../../common/types/common.types.js';
+import {
+    mapToTaskResponse,
+    mapToTaskMapItemResponse,
+    mapToTaskNearbyItemResponse,
+} from '../mappers/task-response.mapper.js';
+import { AbacService } from '../../abac/index.js';
+import { Prisma } from '../../../infrastructure/database/prisma/generated/client.js';
+import { TaskMapQueryDto } from '../dto/task-map-query.dto.js';
+import { TasksNearbyQueryDto } from '../dto/tasks-nearby-query.dto.js';
 
 @Injectable()
 export class TasksService {
@@ -18,14 +29,13 @@ export class TasksService {
         private readonly tasksRepository: TasksRepository,
         private readonly tasksCacheService: TasksCacheService,
         private readonly abacService: AbacService,
-    ) {
-    }
+    ) {}
 
     async findAll(
         user: ActiveUser,
         query: TaskQueryDto,
     ): Promise<PagePaginatedResponse<TaskEntity>> {
-        const accessWhere = (await this.abacService.buildWhereOrThrow(user, 'TASKS:READ',));
+        const accessWhere = await this.abacService.buildWhereOrThrow(user, 'TASKS:READ');
 
         return this.tasksRepository.findAll(accessWhere, query);
     }
@@ -43,7 +53,7 @@ export class TasksService {
         // if (cachedTask) return cachedTask;
         // Temporary off for testing purposes
 
-        const accessWhere = (await this.abacService.buildWhereOrThrow(user, 'TASKS:READ'))
+        const accessWhere = await this.abacService.buildWhereOrThrow(user, 'TASKS:READ');
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 
@@ -56,15 +66,29 @@ export class TasksService {
         return response;
     }
 
-    async findMapTasks(
-        user: ActiveUser,
-        query: TaskMapQueryDto,
-    ): Promise<TaskMapItemResponse[]> {
-        const accessWhere = await this.abacService.buildWhereOrThrow(user, 'TASKS:READ') as Prisma.TaskWhereInput
+    async findMapTasks(user: ActiveUser, query: TaskMapQueryDto): Promise<TaskMapItemResponse[]> {
+        const accessWhere = (await this.abacService.buildWhereOrThrow(
+            user,
+            'TASKS:READ',
+        )) as Prisma.TaskWhereInput;
 
         const tasks = await this.tasksRepository.findMapTasks(accessWhere, query);
 
         return tasks.map((task) => mapToTaskMapItemResponse(task));
+    }
+
+    async findNearbyTasks(
+        user: ActiveUser,
+        query: TasksNearbyQueryDto,
+    ): Promise<TaskNearbyItemResponse[]> {
+        const accessWhere = (await this.abacService.buildWhereOrThrow(
+            user,
+            'TASKS:READ',
+        )) as Prisma.TaskWhereInput;
+
+        const tasks = await this.tasksRepository.findNearbyTasks(accessWhere, query);
+
+        return tasks.map((task) => mapToTaskNearbyItemResponse(task));
     }
 
     async create(userId: number, dto: CreateTaskDto): Promise<TaskResponse> {

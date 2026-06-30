@@ -1,4 +1,10 @@
-import {TaskResponse, TaskEntity, TaskMapItemResponse} from '../tasks.types.js';
+import {
+    TaskResponse,
+    TaskEntity,
+    TaskMapItemResponse,
+    TaskNearbyItemResponse,
+    TaskEntityWithDistance,
+} from '../tasks.types.js';
 import { TaskStatusToApiMap, TaskPriorityToApiMap } from '../tasks.constants.js';
 
 export function mapToTaskResponse(task: TaskEntity): TaskResponse {
@@ -26,5 +32,17 @@ export function mapToTaskMapItemResponse(task: TaskEntity): TaskMapItemResponse 
         priority: TaskPriorityToApiMap[task.priority],
         latitude: task.latitude!,
         longitude: task.longitude!,
+    };
+}
+
+export function mapToTaskNearbyItemResponse(task: TaskEntityWithDistance): TaskNearbyItemResponse {
+    return {
+        id: task.id,
+        title: task.title,
+        status: TaskStatusToApiMap[task.status],
+        priority: TaskPriorityToApiMap[task.priority],
+        latitude: task.latitude!,
+        longitude: task.longitude!,
+        distance: task.distance,
     };
 }

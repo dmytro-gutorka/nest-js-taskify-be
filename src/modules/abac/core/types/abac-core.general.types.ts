@@ -1,4 +1,4 @@
-import {ActiveUser, ValueOf, Nullable} from '../../../../common/types/common.types.js';
+import { ActiveUser, ValueOf, Nullable } from '../../../../common/types/common.types.js';
 import { PolicyResult } from './abac-core.policy.js';
 import { PermissionRuleEffect, PermissionRuleType } from '../constants/abac-core.constants.js';
 

@@ -10,7 +10,8 @@ import { ParamsIdDto } from '../../common/dto/params-id.dto.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { RequiredPermissions } from '../rbac/index.js';
-import {TaskMapQueryDto} from "./dto/task-map-query.dto.js";
+import { TaskMapQueryDto } from './dto/task-map-query.dto.js';
+import { TasksNearbyQueryDto } from './dto/tasks-nearby-query.dto.js';
 
 @Controller('tasks')
 export class TasksController {
@@ -46,6 +47,12 @@ export class TasksController {
     @RequiredPermissions('TASKS:READ')
     async findMapTasks(@CurrentUser() user: ActiveUser, @Query() query: TaskMapQueryDto) {
         return this.tasksService.findMapTasks(user, query);
+    }
+
+    @Get('nearby')
+    @RequiredPermissions('TASKS:READ')
+    async findNearbyTasks(@CurrentUser() user: ActiveUser, @Query() query: TasksNearbyQueryDto) {
+        return this.tasksService.findNearbyTasks(user, query);
     }
 
     @Get(':id')

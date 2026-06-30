@@ -1,5 +1,14 @@
-import {Transform, Type} from 'class-transformer';
-import {IsBoolean, IsDate, IsEnum, IsOptional, IsString, MinLength, IsLatitude, IsLongitude} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+    IsBoolean,
+    IsDate,
+    IsEnum,
+    IsOptional,
+    IsString,
+    MinLength,
+    IsLatitude,
+    IsLongitude,
+} from 'class-validator';
 import { TaskPriority, TaskStatus } from '@database/enums';
 import { emptyToUndefinedDate } from '../../../common/utils/converters.utils.js';
 import { TaskStatusFromApiMap, TaskPriorityFromApiMap } from '../tasks.constants.js';
