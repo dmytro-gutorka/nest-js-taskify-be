@@ -8,7 +8,6 @@ import {
 } from '../users.types.js';
 import { UserAvatarService } from '../../media/services/user-avatar.service.js';
 import type { UploadUserAvatarInput } from '../../media/media.types.js';
-import { CreateUserDto } from '../dto/create-user.dto.js';
 import { UpdateUserDto } from '../dto/update-user.dto.js';
 import { MessageResponse } from '../../../common/types/responses.types.js';
 import { RbacService } from '../../rbac/services/rbac.service.js';
