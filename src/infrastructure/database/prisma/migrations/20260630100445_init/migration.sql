@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- CreateEnum
 CREATE TYPE "auth_provider_enum" AS ENUM ('local', 'google');
 
@@ -11,10 +13,19 @@ CREATE TYPE "media_storage_provider_enum" AS ENUM ('cloudinary');
 CREATE TYPE "email_outbox_status_enum" AS ENUM ('pending', 'queued', 'processing', 'sent', 'failed', 'exceeded_max_attempts');
 
 -- CreateEnum
-CREATE TYPE "role_name_enum" AS ENUM ('user', 'admin');
+CREATE TYPE "role_name_enum" AS ENUM ('user', 'admin', 'guest');
 
 -- CreateEnum
 CREATE TYPE "permission_action_enum" AS ENUM ('create', 'read', 'update', 'delete');
+
+-- CreateEnum
+CREATE TYPE "permission_resource_enum" AS ENUM ('tasks', 'users', 'rbac');
+
+-- CreateEnum
+CREATE TYPE "role_permission_rule_effect" AS ENUM ('allow', 'deny');
+
+-- CreateEnum
+CREATE TYPE "role_permission_rule_type" AS ENUM ('conditional', 'full_access');
 
 -- CreateEnum
 CREATE TYPE "tasks_status_enum" AS ENUM ('todo', 'in_progress', 'done');
@@ -101,7 +112,7 @@ CREATE TABLE "roles" (
 -- CreateTable
 CREATE TABLE "permissions" (
     "id" SERIAL NOT NULL,
-    "resource" VARCHAR(100) NOT NULL,
+    "resource" "permission_resource_enum" NOT NULL,
     "action" "permission_action_enum" NOT NULL,
     "key" VARCHAR(150) NOT NULL,
     "description" TEXT,
@@ -132,6 +143,19 @@ CREATE TABLE "roles_permissions" (
 );
 
 -- CreateTable
+CREATE TABLE "role_permission_rules" (
+    "id" SERIAL NOT NULL,
+    "role_permission_id" INTEGER NOT NULL,
+    "effect" "role_permission_rule_effect" NOT NULL DEFAULT 'allow',
+    "type" "role_permission_rule_type" NOT NULL DEFAULT 'conditional',
+    "conditions" JSONB,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "role_permission_rules_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tasks" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
@@ -140,6 +164,9 @@ CREATE TABLE "tasks" (
     "priority" "tasks_priority_enum" NOT NULL DEFAULT 'medium',
     "deadline" TIMESTAMPTZ,
     "is_private" BOOLEAN NOT NULL DEFAULT false,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+    "location" geography(Point, 4326),
     "author_id" INTEGER NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
@@ -183,6 +210,13 @@ CREATE TABLE "user_avatars" (
 
     CONSTRAINT "user_avatars_pkey" PRIMARY KEY ("id")
 );
+
+CREATE INDEX "tasks_latitude_longitude_idx"
+    ON "tasks" ("latitude", "longitude");
+
+CREATE INDEX "tasks_location_gist_idx"
+    ON "tasks"
+    USING GIST ("location");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_email_provider_key" ON "auth"("email", "provider");
@@ -237,6 +271,9 @@ ALTER TABLE "roles_permissions" ADD CONSTRAINT "roles_permissions_role_id_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "roles_permissions" ADD CONSTRAINT "roles_permissions_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "role_permission_rules" ADD CONSTRAINT "role_permission_rules_role_permission_id_fkey" FOREIGN KEY ("role_permission_id") REFERENCES "roles_permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

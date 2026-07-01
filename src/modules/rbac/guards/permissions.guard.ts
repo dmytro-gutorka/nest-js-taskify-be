@@ -4,20 +4,21 @@ import {
     type CanActivate,
     type ExecutionContext,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import type { Request } from 'express';
-import { RbacService } from '../services/rbac.service.js';
-import { REQUIRED_PERMISSIONS_KEY } from '../decorators/required-permissions.decorator.js';
-import { SKIP_PERMISSIONS_KEY } from '../decorators/skip-permissions.decorator.js';
-import { SKIP_ACCESS_TOKEN_GUARD_KEY } from '../../../common/decorators/skip-access-token.decorator.js';
-import { PermissionKey } from '../rbac.types.js';
+import {Reflector} from '@nestjs/core';
+import type {Request} from 'express';
+import {RbacService} from '../services/rbac.service.js';
+import {REQUIRED_PERMISSIONS_KEY} from '../decorators/required-permissions.decorator.js';
+import {SKIP_PERMISSIONS_KEY} from '../decorators/skip-permissions.decorator.js';
+import {SKIP_ACCESS_TOKEN_GUARD_KEY} from '../../../common/decorators/skip-access-token.decorator.js';
+import {PermissionKey} from '../rbac.types.js';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
         private readonly rbacService: RbacService,
-    ) {}
+    ) {
+    }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const targets = [context.getHandler(), context.getClass()];
@@ -45,14 +46,16 @@ export class PermissionsGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest<Request>();
 
-        if (!request.user?.id) throw new ForbiddenException('User is not authenticated');
+        if (!request.user?.id)
+            throw new ForbiddenException('User is not authenticated');
 
         const userPermissions = await this.rbacService.getUserPermissionKeys(request.user?.id);
         const hasAllNecessaryPermissions = requiredPermissions.every((permission: PermissionKey) =>
             userPermissions.includes(permission),
         );
 
-        if (!hasAllNecessaryPermissions) throw new ForbiddenException('Insufficient permissions');
+        if (!hasAllNecessaryPermissions)
+            throw new ForbiddenException('Insufficient permissions');
 
         return true;
     }

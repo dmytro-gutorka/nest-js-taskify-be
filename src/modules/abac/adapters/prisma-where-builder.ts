@@ -5,14 +5,12 @@ import { DslNode, DslLeaf, DslGroup } from '../core/types/abac-core.dsl.types.js
 
 export class PrismaWhereBuilder implements IWhereBuilder {
     build(policy: PolicyResult): Record<string, unknown> | null {
-        if (policy.effect === 'DENY')
-            return null;
+        if (policy.effect === 'DENY') return null;
 
         if (policy.effect === 'FULL_ACCESS') {
             const denyParts = this.buildDenyPart(policy.denyConditions);
 
-            if (denyParts.length === 0)
-                return {};
+            if (denyParts.length === 0) return {};
 
             return { AND: denyParts };
         }
@@ -20,8 +18,7 @@ export class PrismaWhereBuilder implements IWhereBuilder {
         const allowPart = this.buildAllowPart(policy.allowConditions);
         const denyParts = this.buildDenyPart(policy.denyConditions);
 
-        if (denyParts.length === 0)
-            return allowPart;
+        if (denyParts.length === 0) return allowPart;
 
         return { AND: [allowPart, ...denyParts] };
     }
@@ -30,15 +27,14 @@ export class PrismaWhereBuilder implements IWhereBuilder {
         return { OR: conditions.map((node) => this.buildNode(node)) };
     }
 
-    private buildDenyPart(conditions: DslNode[]): Record<string, unknown>[]  {
+    private buildDenyPart(conditions: DslNode[]): Record<string, unknown>[] {
         return conditions.map((node) => {
-            return { NOT: this.buildNode(node)}
-        })
+            return { NOT: this.buildNode(node) };
+        });
     }
 
     private buildNode(node: DslNode): Record<string, unknown> {
-        if ('field' in node)
-            return this.buildLeaf(node);
+        if ('field' in node) return this.buildLeaf(node);
 
         return this.buildGroup(node);
     }

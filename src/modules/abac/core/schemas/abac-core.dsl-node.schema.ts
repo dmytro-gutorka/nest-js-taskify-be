@@ -3,13 +3,9 @@ import { DslOperator, DslLogicalOperator } from '../constants/abac-core.constant
 
 const dslValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
 
-const dslOperatorSchema = z.enum(
-    Object.values(DslOperator) as [string, ...string[]],
-);
+const dslOperatorSchema = z.enum(Object.values(DslOperator) as [string, ...string[]]);
 
-const dslLogicalOperatorSchema = z.enum(
-    Object.values(DslLogicalOperator) as [string, ...string[]],
-);
+const dslLogicalOperatorSchema = z.enum(Object.values(DslLogicalOperator) as [string, ...string[]]);
 
 export const dslNodeSchema: z.ZodType = z.lazy(() =>
     z.union([

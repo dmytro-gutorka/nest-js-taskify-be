@@ -23,3 +23,5 @@ export const TaskPriorityFromApiMap = {
     medium: TaskPriority.MEDIUM,
     high: TaskPriority.HIGH,
 } as const;
+
+export const DEFAULT_TASKS_MAP_LIMIT = 100;
