@@ -22,31 +22,21 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": ".",
     "paths": {
-      "@database": [
-        "src/infrastructure/database/index.js"
-      ],
-      "@database/client": [
-        "src/infrastructure/database/prisma/generated/client.js"
-      ],
-      "@database/enums": [
-        "src/infrastructure/database/prisma/generated/enums.js"
-      ],
+        "@database": ["src/infrastructure/database/index.js"],
+        "@database/client": ["src/infrastructure/database/prisma/generated/client.js"],
+        "@database/enums": ["src/infrastructure/database/prisma/generated/enums.js"],
 
-      "@tasks": [
-        "src/modules/tasks/index.js"
-      ],
-      "@users": [
-        "src/modules/users/index.js"
-      ],
+        "@tasks": ["src/modules/tasks/index.js"],
+        "@users": ["src/modules/users/index.js"],
 
-      "@common": ["src/common/index.js"],
-      "@common/dto": ["src/common/constants/index.js"],
-      "@common/constants": ["src/common/constants/index.js"],
-      "@common/decorators": ["src/common/decorators/index.js"],
-      "@common/enums": ["src/common/enums/index.js"],
-      "@common/pipes": ["src/common/pipes/index.js"],
-      "@common/schemas": ["src/common/schemas/index.js"],
-      "@common/types": ["src/common/types/index.js"]
+        "@common": ["src/common/index.js"], // @gutnidev у тебя файла "src/common/index" не существует.
+        "@common/dto": ["src/common/constants/index.js"], // @gutnidev 1) у тебя файла "src/common/constants/index" не существует. 2) это вообще-то dto, а не константы
+        "@common/constants": ["src/common/constants/index.js"], // @gutnidev у тебя файла "src/common/constants/index" не существует.
+        "@common/decorators": ["src/common/decorators/index.js"], // @gutnidev короче проверь все алиасы
+        "@common/enums": ["src/common/enums/index.js"],
+        "@common/pipes": ["src/common/pipes/index.js"],
+        "@common/schemas": ["src/common/schemas/index.js"],
+        "@common/types": ["src/common/types/index.js"]
     }
   }
 }

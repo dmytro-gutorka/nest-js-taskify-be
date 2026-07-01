@@ -8,6 +8,7 @@ export const CurrentUser = createParamDecorator(
 
         if (!req.user) throw new UnauthorizedException('User is not authenticated');
 
+        // @gutnidev у тебя юзер - any, потому что типизация в express.d.ts кривая из-за импорта.
         return req.user!;
     },
 );

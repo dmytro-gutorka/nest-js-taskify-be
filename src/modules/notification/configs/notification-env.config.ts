@@ -33,6 +33,7 @@ export const notificationEnvConfig = registerAs('notification', () => {
     const env = NotificationEnvSchema.parse(process.env);
 
     return {
+        // @gutnidev вот тут зачем хост и порт Редис?
         redisHost: env.REDIS_HOST,
         redisPort: env.REDIS_PORT,
 

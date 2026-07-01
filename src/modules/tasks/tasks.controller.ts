@@ -44,12 +44,14 @@ export class TasksController {
     @Get(':id')
     @RequiredPermissions('TASKS:READ')
     async findOne(@CurrentUser() user: ActiveUser, @Param() params: ParamsIdDto) {
+        // @gutnidev не понимаю зачем await после return
         return await this.tasksService.findOneById(params.id, user);
     }
 
     @Post()
     @RequiredPermissions('TASKS:CREATE')
     async create(@CurrentUser() user: ActiveUser, @Body() body: CreateTaskDto) {
+        // @gutnidev не понимаю зачем await после return
         return await this.tasksService.create(user.id, body);
     }
 
@@ -60,6 +62,7 @@ export class TasksController {
         @Param() params: ParamsIdDto,
         @Body() body: UpdateTaskDto,
     ) {
+        // @gutnidev не понимаю зачем await после return
         return await this.tasksService.update(params.id, user, body);
     }
 

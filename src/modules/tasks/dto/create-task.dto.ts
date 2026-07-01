@@ -13,6 +13,7 @@ export class CreateTaskDto {
     @MinLength(5, { message: 'Min description length is 5' })
     description!: string;
 
+    // @gutnidev у тебя идентичный @Transform в трёх местах. Вроде и не так плохо, а вроде и можно было как-то централизовать.
     @Transform(({ value }) => {
         if (!value) return undefined;
         return TaskStatusFromApiMap[value as keyof typeof TaskStatusFromApiMap];

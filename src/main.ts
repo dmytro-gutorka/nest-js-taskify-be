@@ -5,6 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 
+// @gutnidev rbac импортирует DSL validator, а abac зависит от RbacService. Не плоди циклы.
+// все RolePermissionsWithRules должны собираться один раз при запросе, а не каждый раз, когда ты хочешь собрать Where
+
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 

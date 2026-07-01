@@ -66,7 +66,7 @@ export class PrismaWhereBuilder implements IWhereBuilder {
             case DslOperator.CONTAINS:
                 return { [field]: { has: value } };
             default:
-                throw new Error(`Unsupported DSL operator: ${op}`);
+                throw new Error(`Unsupported DSL operator: ${op}`); // @gutnidev ругается eslint
         }
     }
 

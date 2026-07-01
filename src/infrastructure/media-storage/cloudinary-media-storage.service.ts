@@ -8,6 +8,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { type UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+// @gutnidev у тебя есть @database/enums
 import { MediaStorageProvider } from '../database/prisma/generated/enums.js';
 import { MediaStorageResources } from './media-storage.constants.js';
 

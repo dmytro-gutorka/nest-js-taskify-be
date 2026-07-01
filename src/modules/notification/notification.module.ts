@@ -15,6 +15,7 @@ import { NotificationMaintenanceService } from './services/notification-maintena
     imports: [
         ConfigModule.forFeature(notificationEnvConfig),
         BullModule.registerQueue({
+            // @gutnidev у тебя в "src/modules/notification/configs/notification-env.config.ts" парсится зачем-то эта переменная. Или убери из .env, или тут используй из .env.
             name: EMAIL_OUTBOX_QUEUE,
         }),
     ],

@@ -11,5 +11,6 @@ export function emptyToUndefinedDate({ value }: { value: unknown }) {
 export function toArrayOrUndefined({ value }: { value: unknown }) {
     if (value === undefined || value === null || value === '') return undefined;
 
+    // @gutnidev ну блин, тебе не подсвечивает?
     return Array.isArray(value) ? value : [value];
 }

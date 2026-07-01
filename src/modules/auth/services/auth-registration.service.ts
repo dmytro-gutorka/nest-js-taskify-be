@@ -5,12 +5,15 @@ import { CryptoService } from './crypto.service.js';
 import { UsersRepository } from '../../users/repositories/users.repository.js';
 import { DatabaseService } from '../../../infrastructure/database/index.js';
 import { RbacService } from '../../rbac/services/rbac.service.js';
+// @gutnidev у тебя есть @database/enums
 import { RoleName } from '../../../infrastructure/database/prisma/generated/enums.js';
 
 @Injectable()
 export class AuthRegistrationService {
     constructor(
         private readonly database: DatabaseService,
+        // @gutnidev тут должен быть UserService, а не репозиторий. Репозиторий существует, чтобы внутри своего модуля обслуживать свои сервисы.
+        // @gutnidev чужие модули не импортируют репозиториями, они импортируют сервисы.
         private readonly usersRepository: UsersRepository,
         private readonly cryptoService: CryptoService,
         private readonly authRepository: AuthRepository,
@@ -35,6 +38,7 @@ export class AuthRegistrationService {
                     data: { email, name },
                 };
 
+                // @gutnidev тут ты вообще забил даже на репозиторий, который тут не должен быть, а просто напрямую херачишь из чужого модуля в таблицу users.
                 const user = existingUser ?? (await tx.user.create(userData));
                 authUserId = user.id;
             }
@@ -54,6 +58,7 @@ export class AuthRegistrationService {
                 tx,
             );
 
+            // @gutnidev у тебя по умолчанию все кто регистрируются - админы.
             await this.rbacService.assignRoleToUser(authUserId, RoleName.ADMIN, tx);
 
             return auth;

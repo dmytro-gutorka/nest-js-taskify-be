@@ -1,3 +1,4 @@
+// @gutnidev у тебя есть @database/enums
 import { AuthProvider } from '../../infrastructure/database/prisma/generated/enums.js';
 
 export type Nullable<T> = T | null;

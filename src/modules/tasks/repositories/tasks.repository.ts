@@ -104,6 +104,7 @@ export class TasksRepository {
     }
 
     async update(taskId: number, accessWhere: Prisma.TaskWhereInput, updateTaskDto: UpdateTaskDto) {
+        // @gutnidev не совсем понимаю зачем и тут findOneById
         const task = await this.findOneById(taskId, accessWhere);
         if (!task) return null;
 
@@ -114,6 +115,7 @@ export class TasksRepository {
     }
 
     async delete(taskId: number, accessWhere: Prisma.TaskWhereInput): Promise<boolean> {
+        // @gutnidev не совсем понимаю зачем и тут findOneById
         const task = await this.findOneById(taskId, accessWhere);
         if (!task) return false;
 

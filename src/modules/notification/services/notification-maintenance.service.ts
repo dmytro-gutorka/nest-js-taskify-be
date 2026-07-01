@@ -50,9 +50,13 @@ export class NotificationMaintenanceService {
 
         const emails = await this.emailOutboxService.findManyForEnqueue(
             failedBefore,
+            // @gutnidev какая-то каша. Переменная emailOutboxMaxAttempts, а используется как limit для поиска
             this.config.emailOutboxMaxAttempts,
         );
 
+        // @gutnidev в методе вообще что-то непонятное происходит.
+        // у тебя один упал - упали все.
+        // все идут последовательно, а не параллельно
         for (const email of emails) {
             await this.emailOutboxService.markQueued(email.id);
             await this.emailOutboxQueueService.enqueueEmailOutbox(email.id);

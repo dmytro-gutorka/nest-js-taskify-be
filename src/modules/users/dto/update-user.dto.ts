@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsDate, IsOptional, IsString, MinLength } from 'class-validator';
 
+// @gutnidev у теб такой уже есть в "src/common/utils/converters.utils.ts"
 const emptyToUndefinedDate = ({ value }: { value: unknown }) => {
     if (value === '' || value === null || value === undefined) return undefined;
 

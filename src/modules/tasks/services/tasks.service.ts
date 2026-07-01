@@ -9,6 +9,7 @@ import { UpdateTaskDto } from '../dto/update-task.dto.js';
 import { PagePaginatedResponse, ActiveUser } from '../../../common/types/common.types.js';
 import { mapToTaskResponse } from '../mappers/task-response.mapper.js';
 import { AbacService } from '../../abac/index.js';
+// @gutnidev у тебя есть @database/client
 import { Prisma } from '../../../infrastructure/database/prisma/generated/client.js';
 
 @Injectable()
@@ -36,12 +37,16 @@ export class TasksService {
     }
 
     async findOneById(taskId: number, user: ActiveUser): Promise<TaskResponse> {
+        // @gutnidev не забудь раскомментить когда протестируешь
+        // и тут будь внимателен с кэшом. У тебя проверка ABAC идёт после того, как ты кэш отдаёшь пользователю.
+        // можешь отдать не тому юзеру не те данные
+
         // const cachedTask = await this.tasksCacheService.getTask(taskId);
         //
         // if (cachedTask) return cachedTask;
         // Temporary off for testing purposes
 
-        const accessWhere = (await this.abacService.buildWhereOrThrow(user,'TASKS:READ'))
+        const accessWhere = await this.abacService.buildWhereOrThrow(user, 'TASKS:READ');
 
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 
@@ -70,6 +75,7 @@ export class TasksService {
             'TASKS:UPDATE',
         )) as Prisma.TaskWhereInput;
 
+        // @gutnidev у тебя тут findOneById дальше идёт update в котором тоже findOneById
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
         if (!task) throw new NotFoundException('Task not found');
 
@@ -88,6 +94,7 @@ export class TasksService {
             'TASKS:DELETE',
         )) as Prisma.TaskWhereInput;
 
+        // @gutnidev у тебя тут findOneById дальше идёт delete в котором тоже findOneById
         const task = await this.tasksRepository.findOneById(taskId, accessWhere);
 
         if (!task) {

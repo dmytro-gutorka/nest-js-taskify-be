@@ -6,6 +6,6 @@ import { cacheEnvConfig } from './cache-enc.config.js';
 @Module({
     imports: [ConfigModule.forFeature(cacheEnvConfig)],
     providers: [CacheService],
-    exports: [CacheService, ConfigModule],
+    exports: [CacheService, ConfigModule], // @gutnidev не понимаю причину экспорта ConfigModule
 })
 export class CacheModule {}

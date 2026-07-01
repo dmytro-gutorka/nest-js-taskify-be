@@ -47,6 +47,7 @@ export class EmailOutboxProcessor extends WorkerHost {
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown email error';
 
+            // @gutnidev всегда переводишь в "FAILED" и никогда не ставишь "EXCEEDED_MAX_ATTEMPTS" статус. У тебя оно будет крутиться вечно.
             await this.emailOutboxService.markFailed(emailOutbox.id, errorMessage);
 
             this.logger.error(
