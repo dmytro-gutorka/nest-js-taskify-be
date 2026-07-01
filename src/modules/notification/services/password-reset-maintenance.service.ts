@@ -5,6 +5,8 @@ import { type ConfigType } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { dateBeforeNow } from '../../../common/utils/time.utils.js';
 
+// @gutnidev 1) у тебя конфиг импортится из auth, репозиторий тоже из auth, сам класс имеет в названии password reset. Как он оказался в notification?
+// @gutnidev 2) У тебя этот сервис вообще никуда не подключен. Я думаю он и не должен работать.
 @Injectable()
 export class PasswordResetMaintenanceService {
     private readonly logger = new Logger(PasswordResetMaintenanceService.name);

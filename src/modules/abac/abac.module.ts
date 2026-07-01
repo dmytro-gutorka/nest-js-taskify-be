@@ -9,6 +9,7 @@ import {type AbacModuleOptions} from './core/types/abac-core.general.types.js';
 export class AbacModule {
     static forRoot(options: AbacModuleOptions): DynamicModule {
         return {
+            // @gutnidev глобальные модули - зло
             global: true,
             module: AbacModule,
             providers: [

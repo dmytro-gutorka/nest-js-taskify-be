@@ -6,6 +6,7 @@ import {
     UserListItemResponse,
     UserDetailsResponse,
 } from '../users.types.js';
+// @gutnidev шото у тебя импорты покорёжило
 import { UserAvatarService } from '../../media/services/user-avatar.service.js';
 import type { UploadUserAvatarInput } from '../../media/media.types.js';
 import { UpdateUserDto } from '../dto/update-user.dto.js';
@@ -106,6 +107,7 @@ export class UsersService {
     }
 
     async delete(userId: number): Promise<MessageResponse> {
+        // @gutnidev у тебя тут findOne дальше идёт delete в котором тоже findOne
         const user = await this.usersRepository.findOne(userId);
 
         if (!user) {

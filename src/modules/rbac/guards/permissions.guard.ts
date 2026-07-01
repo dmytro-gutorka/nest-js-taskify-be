@@ -45,9 +45,10 @@ export class PermissionsGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest<Request>();
 
+        // @gutnidev ругается eslint
         if (!request.user?.id) throw new ForbiddenException('User is not authenticated');
 
-        const userPermissions = await this.rbacService.getUserPermissionKeys(request.user?.id);
+        const userPermissions = await this.rbacService.getUserPermissionKeys(request.user?.id); // @gutnidev ругается eslint
         const hasAllNecessaryPermissions = requiredPermissions.every((permission: PermissionKey) =>
             userPermissions.includes(permission),
         );

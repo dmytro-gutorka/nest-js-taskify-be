@@ -1,3 +1,4 @@
+// @gutnidev у тебя есть @database/enums. Везде проверь
 import { AuthProvider } from '../../../infrastructure/database/prisma/generated/enums.js';
 import {
     Injectable,

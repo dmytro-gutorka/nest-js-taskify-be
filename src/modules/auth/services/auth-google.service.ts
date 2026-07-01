@@ -4,6 +4,7 @@ import { GoogleAuthService } from './google-auth.service.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { AuthRegistrationService } from './auth-registration.service.js';
 import { TokensPair } from '../auth.types.js';
+// @gutnidev у тебя есть @database/enums
 import { AuthProvider } from '../../../infrastructure/database/prisma/generated/enums.js';
 import { SignInGoogleDto } from '../dto/sign-in-google.dto.js';
 import { ActiveUser } from '../../../common/types/common.types.js';

@@ -43,6 +43,7 @@ export class UsersRepository {
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity | null> {
+        // @gutnidev не совсем понимаю зачем и тут findOne
         const existingUser = await this.findOne(id);
 
         if (!existingUser) return null;
@@ -54,6 +55,7 @@ export class UsersRepository {
     }
 
     async updatePrimaryEmail(id: number, email: string): Promise<UserEntity | null> {
+        // @gutnidev не совсем понимаю зачем и тут findOne
         const existingUser = await this.findOne(id);
 
         if (!existingUser) return null;
@@ -65,6 +67,7 @@ export class UsersRepository {
     }
 
     async delete(id: number): Promise<boolean> {
+        // @gutnidev не совсем понимаю зачем и тут findOne
         const existingUser = await this.findOne(id);
 
         if (!existingUser) return false;

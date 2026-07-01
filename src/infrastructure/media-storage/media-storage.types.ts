@@ -1,3 +1,4 @@
+// @gutnidev у тебя есть @database/enums
 import type { MediaStorageProvider } from '../database/prisma/generated/enums.js';
 import { MediaStorageResources } from './media-storage.constants.js';
 import { ValueOf } from '../../common/types/common.types.js';
